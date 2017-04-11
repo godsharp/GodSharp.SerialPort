@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>GodSharp.SerialPort</id>
-    <version>1.0.0-pre</version>
+    <version>1.0.0</version>
     <title>GodSharp.SerialPort</title>
     <authors>seayxu</authors>
     <owners>seayxu</owners>
@@ -15,7 +15,4 @@
     <copyright>Copyright GodSharp 2017</copyright>
     <tags>GodSharp.SerialPort,GodSerialPort,SerialPort,GodSharp</tags>
   </metadata>
-  <files>
-    <file src="bin\Release\GodSharp.SerialPort.dll" target="lib\net35\GodSharp.SerialPort.dll" />
-  </files>
 </package>
