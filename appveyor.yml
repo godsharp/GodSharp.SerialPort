@@ -1,0 +1,36 @@
+version: 1.0.{build}
+skip_branch_with_pr: true
+image: Visual Studio 2017
+configuration: Release
+platform: Any CPU
+clone_folder: c:\projects\godsharp.serialport
+nuget:
+  account_feed: true
+  project_feed: true
+build:
+  project: src\GodSharp.SerialPort\GodSharp.SerialPort.csproj
+  publish_nuget: true
+  publish_nuget_symbols: true
+  include_nuget_references: true
+  verbosity: minimal
+test: off
+artifacts:
+- path: '**\*.nupkg'
+  name: NeGet
+deploy:
+- provider: NuGet
+  server: https://www.nuget.org/api/v2/package
+  api_key:
+    secure: s388/c8yQWnGyZ9v9cUDfBe4ud6MFl/ouUEEBruiN5j5+LjSQ4giGKMKuLuvglS1
+  skip_symbols: true
+  artifact: /.*\.nupkg/
+  on:
+    APPVEYOR_REPO_TAG: true
+- provider: NuGet
+  server: https://www.myget.org/F/seay/api/v2/package
+  api_key:
+    secure: CKm5m2qGYNYnh5yDUE2zKfN+JKBmO5xmtG80AP0yni9yPBqDOaRQ48Y/4k8KGo2y
+  skip_symbols: true
+  artifact: /.*\.nupkg/
+  on:
+    APPVEYOR_REPO_TAG: true

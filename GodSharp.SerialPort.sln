@@ -1,0 +1,56 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26403.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A9C28F7F-0F11-4E92-B31A-BF950A54F863}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{0D3F3351-97B4-4A86-B885-991892A0FAD9}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "GodSharp.Shared", "src\GodSharp.Shared\GodSharp.Shared.shproj", "{42D420D1-B004-457D-99A0-913742AA3834}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GodSharp.SerialPort", "src\GodSharp.SerialPort\GodSharp.SerialPort.csproj", "{4006DD01-8B21-4246-A7CF-A15421738486}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GodSharp.SerialPort.ConsoleSample", "test\GodSharp.SerialPort.ConsoleSample\GodSharp.SerialPort.ConsoleSample.csproj", "{64A904FC-399A-4D07-99F5-1B5CCD9FF17A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GodSharp.SerialPort.Tests", "test\GodSharp.SerialPort.Tests\GodSharp.SerialPort.Tests.csproj", "{DE27FFB1-2029-4FF5-892E-6F4274460CF1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{29956551-411E-4631-A3E3-397100FCD8B8}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		src\GodSharp.Shared\GodSharp.Shared.projitems*{42d420d1-b004-457d-99a0-913742aa3834}*SharedItemsImports = 13
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4006DD01-8B21-4246-A7CF-A15421738486}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4006DD01-8B21-4246-A7CF-A15421738486}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4006DD01-8B21-4246-A7CF-A15421738486}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4006DD01-8B21-4246-A7CF-A15421738486}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64A904FC-399A-4D07-99F5-1B5CCD9FF17A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64A904FC-399A-4D07-99F5-1B5CCD9FF17A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64A904FC-399A-4D07-99F5-1B5CCD9FF17A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64A904FC-399A-4D07-99F5-1B5CCD9FF17A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE27FFB1-2029-4FF5-892E-6F4274460CF1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE27FFB1-2029-4FF5-892E-6F4274460CF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE27FFB1-2029-4FF5-892E-6F4274460CF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE27FFB1-2029-4FF5-892E-6F4274460CF1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{42D420D1-B004-457D-99A0-913742AA3834} = {A9C28F7F-0F11-4E92-B31A-BF950A54F863}
+		{4006DD01-8B21-4246-A7CF-A15421738486} = {A9C28F7F-0F11-4E92-B31A-BF950A54F863}
+		{64A904FC-399A-4D07-99F5-1B5CCD9FF17A} = {0D3F3351-97B4-4A86-B885-991892A0FAD9}
+		{DE27FFB1-2029-4FF5-892E-6F4274460CF1} = {0D3F3351-97B4-4A86-B885-991892A0FAD9}
+	EndGlobalSection
+EndGlobal
