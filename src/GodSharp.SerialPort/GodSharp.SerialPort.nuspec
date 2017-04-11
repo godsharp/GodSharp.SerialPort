@@ -8,7 +8,7 @@
     <owners>seayxu</owners>
     <licenseUrl>https://github.com/godsharp/GodSharp.SerialPort/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/godsharp/GodSharp.SerialPort</projectUrl>
-    <iconUrl>https://avatars3.githubusercontent.com/u/26563296?v=3&s=200</iconUrl>
+    <iconUrl>https://avatars3.githubusercontent.com/u/26563296</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>Easy to use SerialPort class.</releaseNotes>
