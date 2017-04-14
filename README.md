@@ -34,7 +34,7 @@ serial.WriteHexString("7E 48 53 44");
 
 5. Parity value.
 
--Parity.Space£º0|s|space
+- Parity.Space£º0|s|space
 - Parity.Mark£º1|m|mark
 - Parity.Even£º2|e|even
 - Parity.Odd£º3|o|odd
