@@ -32,6 +32,27 @@ serial.WriteAsciiString("ascii string");
 serial.WriteHexString("7E 48 53 44");
 ```
 
+5. Parity value.
+
+-Parity.Space£º0|s|space
+- Parity.Mark£º1|m|mark
+- Parity.Even£º2|e|even
+- Parity.Odd£º3|o|odd
+- Parity.None£º4|n|none
+
+6. StopBits value.
+
+- StopBits.None£º0|n|none
+- StopBits.One£º1|o|one
+- StopBits.OnePointFive£º3|opf|of|f
+- StopBits.Two£º2|t|two
+
+7. Handshake value.
+
+- Handshake.None£º0|n|none
+- Handshake.RequestToSend£º1|r|rst
+- Handshake.RequestToSendXOnXOff£º2|rtsxx|rsxx|rtsx|rsx|rx
+- Handshake.XOnXOff£º3|x|xx
 
 # Sample
 

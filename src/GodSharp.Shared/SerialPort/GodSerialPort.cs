@@ -321,6 +321,7 @@ namespace GodSharp
 
             StopBitDictionary = new Dictionary<string, double>
             {
+                {"None", 0},
                 {"1", 1},
                 {"1.5", 1.5},
                 {"2", 2}
@@ -330,52 +331,60 @@ namespace GodSharp
         /// <summary>
         /// Initializes a new instance of the <see cref="GodSerialPort"/> class.
         /// </summary>
-        /// <param name="portName">The name of the port.</param>
-        /// <param name="baudRate">The baudrate.</param>
-        public GodSerialPort(string portName, int baudRate)
+        private GodSerialPort()
         {
             serialPort = new SerialPort();
-            InitDefault();
+
+            handshake = Handshake.None;
+            parity = Parity.None;
+            stopBits = StopBits.One;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GodSerialPort"/> class.
+        /// </summary>
+        /// <param name="portName">The name of the port.</param>
+        /// <param name="baudRate">The baudrate,default is 9600.</param>
+        /// <param name="dataBits">The databits,default is 8.</param>
+        /// <param name="parity">The parity,default is none,Parity.None.
+        /// <para>Parity.Space：0|s|space</para>
+        /// <para>Parity.Mark：1|m|mark</para>
+        /// <para>Parity.Even：2|e|even</para>
+        /// <para>Parity.Odd：3|o|odd</para>
+        /// <para>Parity.None：4|n|none</para>
+        /// </param>
+        /// <param name="stopBits">The stopbits,default is none,StopBits.None.
+        /// <para>StopBits.None：0|n|none</para>
+        /// <para>StopBits.One：1|o|one</para>
+        /// <para>StopBits.OnePointFive：3|opf|of|f</para>
+        /// <para>StopBits.Two：2|t|two</para>
+        /// </param>
+        /// <param name="handshake">The handshake,default is none,Handshake.None.
+        /// <para>Handshake.None：0|n|none</para>
+        /// <para>Handshake.RequestToSend：1|r|rst</para>
+        /// <para>Handshake.RequestToSendXOnXOff：2|rtsxx|rsxx|rtsx|rsx|rx</para>
+        /// <para>Handshake.XOnXOff：3|x|xx</para>
+        /// </param>
+        public GodSerialPort(string portName="COM1", int baudRate=9600, int dataBits=8,
+            string parity=null, string stopBits=null, string handshake=null)
+            : this()
+        {
             this.portName = portName;
             this.baudRate = baudRate;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="GodSerialPort"/> class.
-        /// </summary>
-        /// <param name="portName">The name of the port.</param>
-        /// <param name="baudRate">The baudrate.</param>
-        /// <param name="dataBits">The databits.</param>
-        /// <param name="parity">The parity.</param>
-        /// <param name="stopBits">The stopbits.</param>
-        public GodSerialPort(string portName, int baudRate, int dataBits, string parity, string stopBits)
-            : this(portName, baudRate)
-        {
             this.dataBits = dataBits;
-            this.parity = GetParity(parity);
-            this.stopBits = GetStopBits(stopBits);
-        }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="GodSerialPort"/> class.
-        /// </summary>
-        /// <param name="portName">The name of the port.</param>
-        /// <param name="baudRate">The baudrate.</param>
-        /// <param name="dataBits">The databits.</param>
-        /// <param name="handshake">The handshake.</param>
-        /// <param name="parity">The parity.
-        /// Parity.Space：0|s|space
-        /// Parity.Mark：1|m|mark
-        /// Parity.Even：2|e|even
-        /// Parity.Odd：3|o|odd
-        /// Parity.None：4|n|none
-        /// </param>
-        /// <param name="stopBits">The stopbits.</param>
-        public GodSerialPort(string portName, int baudRate, int dataBits, string handshake,
-            string parity, string stopBits)
-            : this(portName, baudRate, dataBits, parity, stopBits)
-        {
-            this.handshake = GetHandshake(handshake);
+            if (!string.IsNullOrEmpty(parity))
+            {
+                this.parity = GetParity(parity); 
+            }
+            if (!string.IsNullOrEmpty(stopBits))
+            {
+                this.stopBits = GetStopBits(stopBits); 
+            }
+            if (!string.IsNullOrEmpty(handshake))
+            {
+                this.handshake = GetHandshake(handshake); 
+            }
         }
 
         #endregion
@@ -499,22 +508,7 @@ namespace GodSharp
         }
 
         #endregion
-
-        #region Initializes default
-        /// <summary>
-        /// Initializes the default.
-        /// </summary>
-        private void InitDefault()
-        {
-            baudRate = 9600;
-            dataBits = 8;
-            handshake = Handshake.None;
-            parity = Parity.Even;
-            stopBits = StopBits.One;
-        }
-
-        #endregion
-
+        
         #region Initializes the SerialPort method
         /// <summary>
         /// Initializes the <see cref="SerialPort"/> with the action of data receive.
