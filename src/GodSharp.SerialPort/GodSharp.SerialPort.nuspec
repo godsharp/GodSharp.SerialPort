@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>GodSharp.SerialPort</id>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <title>GodSharp.SerialPort</title>
     <authors>seayxu</authors>
     <owners>seayxu</owners>
@@ -10,8 +10,8 @@
     <projectUrl>https://github.com/godsharp/GodSharp.SerialPort</projectUrl>
     <iconUrl>https://avatars3.githubusercontent.com/u/26563296</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>$description$</description>
-    <releaseNotes>Easy to use SerialPort class.</releaseNotes>
+    <description>An easy-to-use .NET SerialPort class.</description>
+    <releaseNotes>An easy-to-use .NET SerialPort class.</releaseNotes>
     <copyright>Copyright GodSharp 2017</copyright>
     <tags>GodSharp.SerialPort,GodSerialPort,SerialPort,GodSharp</tags>
   </metadata>

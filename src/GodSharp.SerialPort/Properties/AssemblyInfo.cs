@@ -4,8 +4,8 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Easy to use SerialPort class.")]
-[assembly: AssemblyDescription("Easy to use SerialPort class.")]
+[assembly: AssemblyTitle("An easy-to-use .NET SerialPort class.")]
+[assembly: AssemblyDescription("An easy-to-use .NET SerialPort class.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("https://github.com/GodSharp")]
 [assembly: AssemblyProduct("GodSharp.SerialPort")]
