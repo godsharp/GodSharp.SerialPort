@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
+// ReSharper disable RedundantArgumentDefaultValue
 namespace GodSharp.SerialPort.ConsoleSample
 {
     class Program
     {
+        // ReSharper disable once UnusedParameter.Local
         static void Main(string[] args)
         {
             Console.Write("input serialport number(only 0-9):");
@@ -17,9 +17,12 @@ namespace GodSharp.SerialPort.ConsoleSample
             }
 
             GodSerialPort gsp = new GodSerialPort("COM"+num, 9600);
-            gsp.Init((bytes) => {
-                string buffer = string.Join(" ", bytes);
-                Console.WriteLine("receive data:" + buffer);
+            gsp.UseDataReceived((bytes) => {
+                if (bytes!=null&&bytes.Length>0)
+                {
+                    string buffer = string.Join(" ", bytes);
+                    Console.WriteLine("receive data:" + buffer);
+                }
             });
             flag = gsp.Open();
 

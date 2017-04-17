@@ -15,7 +15,7 @@ namespace GodSharp
     /// </summary>
     /// <example>
     /// GodSerialPort serial= new GodSerialPort("COM1",9600);
-    /// serial.Init((bytes)=>{});
+    /// serial.UseDataReceived((bytes)=>{});
     /// serial.Open();
     /// </example>
     public class GodSerialPort
@@ -59,12 +59,31 @@ namespace GodSharp
         /// </summary>
         /// <value>The data format.</value>
         public SerialPortDataFormat DataFormat { get; set; } = SerialPortDataFormat.Hex;
-
+        
+        private int tryCountOfReceive;
         /// <summary>
         /// Gets or sets the try count of receive.
         /// </summary>
-        /// <value>The try count of receive.</value>
-        public int TryCountOfReceive { get; set; } = 10;
+        /// <value>The try count of receive,default is 10.</value>
+        public int TryCountOfReceive
+        {
+            get => this.tryCountOfReceive;
+            set
+            {
+                if (value < 1)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(TryCountOfReceive), "TryCountOfReceive must be equal or greater than 1.");
+                }
+                tryCountOfReceive = value;
+            }
+        }
+
+
+        /// <summary>
+        /// Gets or sets the try sleep time of receive,unit is ms.
+        /// </summary>
+        /// <value>The try sleep time of receive,default is 10.</value>
+        public int TrySleepTimeOfReceive { get; set; } = 10;
 
         /// <summary>
         /// Gets or sets the end character.
@@ -333,11 +352,11 @@ namespace GodSharp
         /// </summary>
         private GodSerialPort()
         {
-            serialPort = new SerialPort();
-
-            handshake = Handshake.None;
-            parity = Parity.None;
-            stopBits = StopBits.One;
+            this.tryCountOfReceive = 10;
+            this.handshake = Handshake.None;
+            this.parity = Parity.None;
+            this.stopBits = StopBits.One;
+            this.serialPort = new SerialPort();
         }
 
         /// <summary>
@@ -385,6 +404,8 @@ namespace GodSharp
             {
                 this.handshake = GetHandshake(handshake); 
             }
+
+            this.Init();
         }
 
         #endregion
@@ -401,57 +422,8 @@ namespace GodSharp
             {
                 if (serialPort.IsOpen)
                 {
-                    int tryCount = 0;
-                    int endingLength = 0;
-                    bool found = false;
-                    List<byte> list = new List<byte>();
-                    byte[] bytes;
-                    byte[] ending = null;
-                    byte[] currentEnding;
-
-                    if (EndCharOfHex != null)
-                    {
-                        ending = HexToByte(EndCharOfHex);
-                        endingLength = ending.Length;
-                    }
-
-                    int dataLength;
-                    while ((serialPort.BytesToRead > 0 || !found) && tryCount < TryCountOfReceive)
-                    {
-                        dataLength = serialPort.BytesToRead < serialPort.ReadBufferSize
-                            ? serialPort.BytesToRead
-                            : serialPort.ReadBufferSize;
-                        bytes = new byte[dataLength];
-                        serialPort.Read(bytes, 0, bytes.Length);
-                        list.AddRange(bytes);
-
-                        if (ending != null && endingLength > 0)
-                        {
-                            currentEnding = new byte[endingLength];
-
-                            if (bytes.Length >= endingLength)
-                            {
-                                Buffer.BlockCopy(bytes, bytes.Length - endingLength, currentEnding, 0, endingLength);
-                            }
-                            else if (list.ToArray().Length >= endingLength)
-                            {
-                                byte[] temp = list.ToArray();
-                                Buffer.BlockCopy(temp, temp.Length - endingLength, currentEnding, 0, endingLength);
-                            }
-                            else
-                            {
-                                continue;
-                            }
-
-                            found = ending.Length > 0 && currentEnding.SequenceEqual(ending);
-                        }
-
-                        Thread.Sleep(50);
-
-                        tryCount++;
-                    }
-
-                    this.onData?.Invoke(list.ToArray());
+                    byte[] bytes = this.TryRead();
+                    this.onData?.Invoke(bytes);
                     this.DiscardOutBuffer();
                     this.DiscardInBuffer();
                 }
@@ -508,13 +480,22 @@ namespace GodSharp
         }
 
         #endregion
-        
+
+        /// <summary>
+        /// Use DataReceived event with data received action.
+        /// </summary>
+        /// <param name="action">The action which process data.</param>
+        public void UseDataReceived(Action<byte[]> action)
+        {
+            onData = action;
+            serialPort.DataReceived += SerialPort_DataReceived;
+        }
+
         #region Initializes the SerialPort method
         /// <summary>
         /// Initializes the <see cref="SerialPort"/> with the action of data receive.
         /// </summary>
-        /// <param name="action">The action.</param>
-        public void Init(Action<byte[]> action)
+        public void Init()
         {
             try
             {
@@ -534,14 +515,12 @@ namespace GodSharp
                     throw new ArgumentException("port name must be COMxx.", nameof(portName));
                 }
 
-                onData = action;
                 serialPort.PortName = portName;
                 serialPort.BaudRate = baudRate;
                 serialPort.DataBits = dataBits;
                 serialPort.Handshake = handshake;
                 serialPort.Parity = parity;
                 serialPort.StopBits = stopBits;
-                serialPort.DataReceived += SerialPort_DataReceived;
                 serialPort.PinChanged += SerialPort_PinChanged;
                 serialPort.ErrorReceived += SerialPort_ErrorReceived;
             }
@@ -646,19 +625,17 @@ namespace GodSharp
         /// <summary>
         /// Reads data from the input buffer.
         /// </summary>
-        /// <returns>System.String.</returns>
-        public string Read()
+        /// <returns>System.String,hex or ascii format.</returns>
+        public string ReadString()
         {
             try
             {
-                byte[] bytes = new byte[serialPort.BytesToRead];
-                int count = serialPort.Read(bytes, 0, bytes.Length);
-
                 string str = null;
 
-                if (count > 0)
-                {
+                byte[] bytes = this.TryRead();
 
+                if (bytes != null && bytes.Length > 0)
+                {
                     switch (DataFormat)
                     {
                         case SerialPortDataFormat.Char:
@@ -681,23 +658,12 @@ namespace GodSharp
         /// <summary>
         /// Reads data from the input buffer.
         /// </summary>
-        /// <param name="buffer">The buffer.</param>
-        /// <returns>Boolean.</returns>
-        public bool Read(ref byte[] buffer)
+        /// <returns>The byte array.</returns>
+        public byte[] Read()
         {
             try
             {
-                buffer = null;
-                byte[] bytes = new byte[serialPort.BytesToRead];
-                int count = serialPort.Read(bytes, 0, bytes.Length);
-
-                if (count > 0)
-                {
-                    buffer = bytes;
-                    return true;
-                }
-
-                return false;
+                return this.TryRead();
             }
             catch (Exception ex)
             {
@@ -705,6 +671,70 @@ namespace GodSharp
             }
         }
 
+        #endregion
+
+        #region //Try Read Data
+        /// <summary>
+        /// Try Read Data
+        /// </summary>
+        /// <returns>The byte array.</returns>
+        private byte[] TryRead()
+        {
+            int tryCount = 0;
+            int endingLength = 0;
+            bool found = false;
+            List<byte> list = new List<byte>();
+            byte[] bytes;
+            byte[] ending = null;
+            byte[] currentEnding;
+
+            if (EndCharOfHex != null)
+            {
+                ending = HexToByte(EndCharOfHex);
+                endingLength = ending.Length;
+            }
+
+            int dataLength;
+            while ((serialPort.BytesToRead > 0 || !found) && tryCount < tryCountOfReceive)
+            {
+                dataLength = serialPort.BytesToRead < serialPort.ReadBufferSize
+                    ? serialPort.BytesToRead
+                    : serialPort.ReadBufferSize;
+                bytes = new byte[dataLength];
+                serialPort.Read(bytes, 0, bytes.Length);
+                list.AddRange(bytes);
+
+                if (ending != null && endingLength > 0)
+                {
+                    currentEnding = new byte[endingLength];
+
+                    if (bytes.Length >= endingLength)
+                    {
+                        Buffer.BlockCopy(bytes, bytes.Length - endingLength, currentEnding, 0, endingLength);
+                    }
+                    else if (list.ToArray().Length >= endingLength)
+                    {
+                        byte[] temp = list.ToArray();
+                        Buffer.BlockCopy(temp, temp.Length - endingLength, currentEnding, 0, endingLength);
+                    }
+                    else
+                    {
+                        continue;
+                    }
+
+                    found = ending.Length > 0 && currentEnding.SequenceEqual(ending);
+                }
+
+                if (TrySleepTimeOfReceive>0)
+                {
+                    Thread.Sleep(TrySleepTimeOfReceive); 
+                }
+
+                tryCount++;
+            }
+
+            return list.Count > 0 ? list.ToArray() : null;
+        } 
         #endregion
 
         #region Writes method
@@ -723,7 +753,7 @@ namespace GodSharp
 
                 byte[] bytes = HexToByte(str);
 
-                serialPort.Write(bytes, 0, bytes.Length);//serialPort.Encoding.GetBytes(str)
+                serialPort.Write(bytes, 0, bytes.Length);
             }
             catch (Exception ex)
             {
@@ -758,7 +788,8 @@ namespace GodSharp
         /// Writes the specified string.
         /// </summary>
         /// <param name="str"></param>
-        public void Write(string str)
+        // ReSharper disable once UnusedMember.Local
+        private void Write(string str)
         {
             try
             {

@@ -1,7 +1,11 @@
 # GodSharp.SerialPort
-Easy to use SerialPort class.
+An easy-to-use .NET SerialPort class.
 
 [![AppVeyor build status](https://img.shields.io/appveyor/ci/seayxu/godsharp-serialport.svg?label=appveyor&style=flat-square)](https://ci.appveyor.com/project/seayxu/godsharp-serialport/) [![NuGet](https://img.shields.io/nuget/v/GodSharp.SerialPort.svg?label=nuget&style=flat-square)](https://www.nuget.org/packages/GodSharp.SerialPort/) [![MyGet](https://img.shields.io/myget/seay/v/GodSharp.SerialPort.svg?label=myget&style=flat-square)](https://www.myget.org/Package/Details/seay?packageType=nuget&packageId=GodSharp.SerialPort)
+
+
+# Requirement
+.NET Framework >= 3.5
 
 # Getting Started
 
@@ -11,10 +15,35 @@ Easy to use SerialPort class.
 GodSerialPort serial = new GodSerialPort("COM1", 9600);
 ```
 
-2. Initialize the GodSerialPort instance with received data action: `Action<byte[]>`.
+About params:
 
+- Parity value.
+
+  - Parity.Space£º0|s|space
+  - Parity.Mark£º1|m|mark
+  - Parity.Even£º2|e|even
+  - Parity.Odd£º3|o|odd
+  - Parity.None£º4|n|none
+
+- StopBits value.
+
+  - StopBits.None£º0|n|none
+  - StopBits.One£º1|o|one
+  - StopBits.OnePointFive£º3|opf|of|f
+  - StopBits.Two£º2|t|two
+
+- Handshake value.
+
+  - Handshake.None£º0|n|none
+  - Handshake.RequestToSend£º1|r|rst
+  - Handshake.RequestToSendXOnXOff£º2|rtsxx|rsxx|rtsx|rsx|rx
+  - Handshake.XOnXOff£º3|x|xx
+
+2. Use `DataReceived` event with received data action: `Action<byte[]>`.
+
+**Notice**:*This is not need when you read data by read method.*
 ```
-serial.Init((bytes)=>{});
+serial.UseDataReceived((bytes)=>{});
 ```
 
 3. Open SerialPort object.
@@ -28,31 +57,16 @@ serial.Open();
 ```
 byte[] bytes = new byte[]{31,32,33,34};
 serial.Write(bytes);
-serial.WriteAsciiString("ascii string");
+serial.Write(bytes,offset:1,count:2);
 serial.WriteHexString("7E 48 53 44");
+serial.WriteAsciiString("ascii string");
 ```
 
-5. Parity value.
-
-- Parity.Space£º0|s|space
-- Parity.Mark£º1|m|mark
-- Parity.Even£º2|e|even
-- Parity.Odd£º3|o|odd
-- Parity.None£º4|n|none
-
-6. StopBits value.
-
-- StopBits.None£º0|n|none
-- StopBits.One£º1|o|one
-- StopBits.OnePointFive£º3|opf|of|f
-- StopBits.Two£º2|t|two
-
-7. Handshake value.
-
-- Handshake.None£º0|n|none
-- Handshake.RequestToSend£º1|r|rst
-- Handshake.RequestToSendXOnXOff£º2|rtsxx|rsxx|rtsx|rsx|rx
-- Handshake.XOnXOff£º3|x|xx
+5. Read data.
+```
+byte[] bytes = serial.Read();
+string stringAsciiOrHex = serial.ReadString();
+```
 
 # Sample
 
@@ -70,7 +84,7 @@ class Program
         }
 
         GodSerialPort gsp = new GodSerialPort("COM"+num, 9600);
-        gsp.Init((bytes) => {
+        gsp.UseDataReceived((bytes) => {
              string buffer = string.Join(" ", bytes);
              Console.WriteLine("receive data:" + buffer);
         });
@@ -105,3 +119,16 @@ class Program
     }
 }
 ```
+
+# Notes
+
+## 1.0.0
+- The first version release.
+
+## 1.0.1
+- Fix ctor and comments.
+
+## 1.1.0
+- 1.Add UseDataReceived method use to trigger DataReceived event.
+- 2.The read metnod can be used to end character.
+- 3.Add sleep time when try read data.
