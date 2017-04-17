@@ -1,4 +1,6 @@
-version: 1.0.{build}
+version: 1.1.{build}
+pull_requests:
+  do_not_increment_build_number: true
 skip_branch_with_pr: true
 image: Visual Studio 2017
 configuration: Release
@@ -8,15 +10,14 @@ nuget:
   account_feed: true
   project_feed: true
 build:
-  project: src\GodSharp.SerialPort\GodSharp.SerialPort.csproj
+  project: GodSharp.SerialPort.sln
   publish_nuget: true
-  publish_nuget_symbols: false
   include_nuget_references: true
   verbosity: minimal
 test: off
 artifacts:
-- path: '**\*.nupkg'
-  name: NeGet
+- path: test\GodSharp.SerialPort.ConsoleSample\bin\$(configuration)\
+  name: GodSharp.SerialPort.ConsoleSample-v$(appveyor_build_version).zip
 deploy:
 - provider: NuGet
   server: https://www.nuget.org/api/v2/package
@@ -25,6 +26,7 @@ deploy:
   skip_symbols: true
   artifact: /.*\.nupkg/
   on:
+    branch: master
     APPVEYOR_REPO_TAG: true
 - provider: NuGet
   server: https://www.myget.org/F/seay/api/v2/package
@@ -33,4 +35,15 @@ deploy:
   skip_symbols: true
   artifact: /.*\.nupkg/
   on:
+    branch: master
+    APPVEYOR_REPO_TAG: true
+- provider: GitHub
+  description: Release.
+  auth_token:
+    secure: uCHTzET52dtiexqTKhgQmup+EBGZs1Afw6eBMfvN4PbQ720YaybNd890Y96ISZ0T
+  artifact: /.*\.(?:nupkg|zip)/
+  draft: true
+  force_update: true
+  on:
+    branch: master
     APPVEYOR_REPO_TAG: true
