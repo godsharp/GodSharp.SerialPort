@@ -15,30 +15,6 @@ An easy-to-use .NET SerialPort class.
 GodSerialPort serial = new GodSerialPort("COM1", 9600);
 ```
 
-About params:
-
-- Parity value.
-
-  - Parity.Space£º0|s|space
-  - Parity.Mark£º1|m|mark
-  - Parity.Even£º2|e|even
-  - Parity.Odd£º3|o|odd
-  - Parity.None£º4|n|none
-
-- StopBits value.
-
-  - StopBits.None£º0|n|none
-  - StopBits.One£º1|o|one
-  - StopBits.OnePointFive£º3|opf|of|f
-  - StopBits.Two£º2|t|two
-
-- Handshake value.
-
-  - Handshake.None£º0|n|none
-  - Handshake.RequestToSend£º1|r|rst
-  - Handshake.RequestToSendXOnXOff£º2|rtsxx|rsxx|rtsx|rsx|rx
-  - Handshake.XOnXOff£º3|x|xx
-
 2. Use `DataReceived` event with received data action: `Action<byte[]>`.
 
 **Notice**:*This is not need when you read data by read method.*
@@ -122,13 +98,17 @@ class Program
 
 # Notes
 
-## 1.0.0
-- The first version release.
-
-## 1.0.1
-- Fix ctor and comments.
-
+## 1.1.1
+- 1.Add constructor and change the constructor signature.
+- 2.Add `PortUtil` class.
+      
 ## 1.1.0
 - 1.Add UseDataReceived method use to trigger DataReceived event.
 - 2.The read metnod can be used to end character.
 - 3.Add sleep time when try read data.
+
+## 1.0.1
+- 1.Fix ctor and comments.
+
+## 1.0.0
+- 1.The first version release.

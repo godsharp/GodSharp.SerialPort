@@ -5,6 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using GodSharp.Extension;
+using GodSharp.Util;
+
 // ReSharper disable TooWideLocalVariableScope
 // ReSharper disable ArrangeThisQualifier
 
@@ -25,7 +28,7 @@ namespace GodSharp
         /// Gets the baudrate dictionary.
         /// </summary>
         /// <value>The baudrate dictionary.</value>
-        public static Dictionary<string, uint> BaudRateDictionary { get; }
+        public static Dictionary<string, int> BaudRateDictionary { get; }
 
         /// <summary>
         /// Gets the parity dictionary.
@@ -37,7 +40,7 @@ namespace GodSharp
         /// Gets the stop bit dictionary.
         /// </summary>
         /// <value>The stop bit dictionary.</value>
-        public static Dictionary<string, double> StopBitDictionary { get; }
+        public static Dictionary<string, string> StopBitDictionary { get; }
 
         /// <summary>
         /// The method of execution that data has been received through a port represented by the SerialPort object.
@@ -312,7 +315,7 @@ namespace GodSharp
         /// </summary>
         static GodSerialPort()
         {
-            BaudRateDictionary = new Dictionary<string, uint>
+            BaudRateDictionary = new Dictionary<string, int>
             {
                 {"110", 110},
                 {"300", 300},
@@ -334,16 +337,16 @@ namespace GodSharp
                 {"None", "n"},
                 {"Odd", "o"},
                 {"Even", "e"},
-                {"Space", "s"},
-                {"Mark", "m"}
+                {"Mark", "m"},
+                {"Space", "s"}
             };
 
-            StopBitDictionary = new Dictionary<string, double>
+            StopBitDictionary = new Dictionary<string, string>
             {
-                {"None", 0},
-                {"1", 1},
-                {"1.5", 1.5},
-                {"2", 2}
+                {"None", "n"},
+                {"1", "o"},
+                {"1.5", "o"},
+                {"2", "f"}
             };
         }
 
@@ -353,9 +356,9 @@ namespace GodSharp
         private GodSerialPort()
         {
             this.tryCountOfReceive = 10;
-            this.handshake = Handshake.None;
             this.parity = Parity.None;
             this.stopBits = StopBits.One;
+            this.handshake = Handshake.None;
             this.serialPort = new SerialPort();
         }
 
@@ -364,29 +367,122 @@ namespace GodSharp
         /// </summary>
         /// <param name="portName">The name of the port.</param>
         /// <param name="baudRate">The baudrate,default is 9600.</param>
+        public GodSerialPort(string portName = "COM1", int baudRate = 9600)
+            : this(portName,baudRate,8)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GodSerialPort"/> class.
+        /// </summary>
+        /// <param name="portName">The name of the port.</param>
+        /// <param name="baudRate">The baudrate,default is 9600.</param>
         /// <param name="dataBits">The databits,default is 8.</param>
-        /// <param name="parity">The parity,default is none,Parity.None.
-        /// <para>Parity.Space：0|s|space</para>
-        /// <para>Parity.Mark：1|m|mark</para>
+        public GodSerialPort(string portName = "COM1", int baudRate = 9600, int dataBits = 8)
+            : this()
+        {
+            this.portName = portName;
+            this.baudRate = baudRate;
+            this.dataBits = dataBits;
+
+            this.Init();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GodSerialPort"/> class.
+        /// </summary>
+        /// <param name="portName">The name of the port.</param>
+        /// <param name="baudRate">The baudrate,default is 9600.</param>
+        /// <param name="dataBits">The databits,default is 8.</param>
+        /// <param name="parity">The string parity,default is none,Parity.None.
+        /// <para>Parity.None：0|n|none</para>
+        /// <para>Parity.Odd：1|o|odd</para>
         /// <para>Parity.Even：2|e|even</para>
-        /// <para>Parity.Odd：3|o|odd</para>
-        /// <para>Parity.None：4|n|none</para>
+        /// <para>Parity.Mark：3|m|mark</para>
+        /// <para>Parity.Space：4|s|space</para>
         /// </param>
-        /// <param name="stopBits">The stopbits,default is none,StopBits.None.
+        /// <param name="stopBits">The string stopbits,default is one,StopBits.One.
         /// <para>StopBits.None：0|n|none</para>
         /// <para>StopBits.One：1|o|one</para>
-        /// <para>StopBits.OnePointFive：3|opf|of|f</para>
         /// <para>StopBits.Two：2|t|two</para>
+        /// <para>StopBits.OnePointFive：3|1.5|f|of|opf</para>
         /// </param>
-        /// <param name="handshake">The handshake,default is none,Handshake.None.
+        public GodSerialPort(string portName = "COM1", int baudRate = 9600, string parity = null, int dataBits = 8,
+            string stopBits = null)
+            : this(portName,baudRate,parity,dataBits,stopBits,null)
+        {
+            
+        }
+
+
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GodSerialPort"/> class.
+        /// </summary>
+        /// <param name="portName">The name of the port.</param>
+        /// <param name="baudRate">The baudrate,default is 9600.</param>
+        /// <param name="dataBits">The databits,default is 8.</param>
+        /// <param name="parity">The int parity,default is 0,Parity.None.
+        /// <para>Parity.None：0</para>
+        /// <para>Parity.Odd：1</para>
+        /// <para>Parity.Even：2</para>
+        /// <para>Parity.Mark：3</para>
+        /// <para>Parity.Space：4</para>
+        /// </param>
+        /// <param name="stopBits">The int stopbits,default is 1,StopBits.One.
+        /// <para>StopBits.None：0</para>
+        /// <para>StopBits.One：1</para>
+        /// <para>StopBits.Two：2</para>
+        /// <para>StopBits.OnePointFive：3</para>
+        /// </param>
+        public GodSerialPort(string portName = "COM1", int baudRate = 9600, int parity = 0, int dataBits = 8,
+            int stopBits = 0)
+            : this(portName, baudRate, parity, dataBits, stopBits, 0)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GodSerialPort"/> class.
+        /// </summary>
+        /// <param name="portName">The name of the port.</param>
+        /// <param name="baudRate">The baudrate,default is 9600.</param>
+        /// <param name="parity">The int parity,default is Parity.None.</param>
+        /// <param name="dataBits">The databits,default is 8.</param>
+        /// <param name="stopBits">The int stopbits,default is StopBits.One.</param>
+        public GodSerialPort(string portName = "COM1", int baudRate = 9600, Parity parity = Parity.None, int dataBits = 8,StopBits stopBits = StopBits.None)
+            : this(portName, baudRate, parity, dataBits, stopBits, Handshake.None)
+        {
+            
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GodSerialPort"/> class.
+        /// </summary>
+        /// <param name="portName">The name of the port.</param>
+        /// <param name="baudRate">The baudrate,default is 9600.</param>
+        /// <param name="dataBits">The databits,default is 8.</param>
+        /// <param name="parity">The string parity,default is none,Parity.None.
+        /// <para>Parity.None：0|n|none</para>
+        /// <para>Parity.Odd：1|o|odd</para>
+        /// <para>Parity.Even：2|e|even</para>
+        /// <para>Parity.Mark：3|m|mark</para>
+        /// <para>Parity.Space：4|s|space</para>
+        /// </param>
+        /// <param name="stopBits">The string stopbits,default is one,StopBits.One.
+        /// <para>StopBits.None：0|n|none</para>
+        /// <para>StopBits.One：1|o|one</para>
+        /// <para>StopBits.Two：2|t|two</para>
+        /// <para>StopBits.OnePointFive：3|1.5|f|of|opf</para>
+        /// </param>
+        /// <param name="handshake">The string handshake,default is none,Handshake.None.
         /// <para>Handshake.None：0|n|none</para>
-        /// <para>Handshake.RequestToSend：1|r|rst</para>
-        /// <para>Handshake.RequestToSendXOnXOff：2|rtsxx|rsxx|rtsx|rsx|rx</para>
-        /// <para>Handshake.XOnXOff：3|x|xx</para>
+        /// <para>Handshake.XOnXOff：1|x|xoxo</para>
+        /// <para>Handshake.RequestToSend：2|r|rst</para>
+        /// <para>Handshake.RequestToSendXOnXOff：3|rx|rtsxx</para>
         /// </param>
-        public GodSerialPort(string portName="COM1", int baudRate=9600, int dataBits=8,
-            string parity=null, string stopBits=null, string handshake=null)
-            : this()
+        public GodSerialPort(string portName="COM1", int baudRate=9600, string parity = null, int dataBits=8,
+            string stopBits=null, string handshake=null)
+        : this()
         {
             this.portName = portName;
             this.baudRate = baudRate;
@@ -394,16 +490,88 @@ namespace GodSharp
 
             if (!string.IsNullOrEmpty(parity))
             {
-                this.parity = GetParity(parity); 
+                this.parity = PortUtil.GetParity(parity); 
             }
             if (!string.IsNullOrEmpty(stopBits))
             {
-                this.stopBits = GetStopBits(stopBits); 
+                this.stopBits = PortUtil.GetStopBits(stopBits); 
             }
             if (!string.IsNullOrEmpty(handshake))
             {
-                this.handshake = GetHandshake(handshake); 
+                this.handshake = PortUtil.GetHandshake(handshake); 
             }
+
+            this.Init();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GodSerialPort"/> class.
+        /// </summary>
+        /// <param name="portName">The name of the port.</param>
+        /// <param name="baudRate">The baudrate,default is 9600.</param>
+        /// <param name="dataBits">The databits,default is 8.</param>
+        /// <param name="parity">The int parity,default is 0,Parity.None.
+        /// <para>Parity.None：0</para>
+        /// <para>Parity.Odd：1</para>
+        /// <para>Parity.Even：2</para>
+        /// <para>Parity.Mark：3</para>
+        /// <para>Parity.Space：4</para>
+        /// </param>
+        /// <param name="stopBits">The int stopbits,default is 1,StopBits.One.
+        /// <para>StopBits.None：0</para>
+        /// <para>StopBits.One：1</para>
+        /// <para>StopBits.Two：2</para>
+        /// <para>StopBits.OnePointFive：3</para>
+        /// </param>
+        /// <param name="handshake">The int handshake,default is 0,Handshake.None.
+        /// <para>Handshake.None：0</para>
+        /// <para>Handshake.XOnXOff：1</para>
+        /// <para>Handshake.RequestToSend：2</para>
+        /// <para>Handshake.RequestToSendXOnXOff：3</para>
+        /// </param>
+        public GodSerialPort(string portName = "COM1", int baudRate = 9600, int parity = 0, int dataBits = 8,
+             int stopBits = 1, int handshake = 0)
+            : this()
+        {
+            this.portName = portName;
+            this.baudRate = baudRate;
+            this.dataBits = dataBits;
+
+            if (parity>0)
+            {
+                this.parity = PortUtil.GetParity(parity);
+            }
+
+            this.stopBits = PortUtil.GetStopBits(stopBits);
+
+            if (handshake > 0)
+            {
+                this.handshake = PortUtil.GetHandshake(handshake);
+            }
+
+            this.Init();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GodSerialPort"/> class.
+        /// </summary>
+        /// <param name="portName">The name of the port.</param>
+        /// <param name="baudRate">The baudrate,default is 9600.</param>
+        /// <param name="parity">The int parity,default is Parity.None.</param>
+        /// <param name="dataBits">The databits,default is 8.</param>
+        /// <param name="stopBits">The int stopbits,default is StopBits.One.</param>
+        /// <param name="handshake">The int handshake,default is Handshake.None.</param>
+        public GodSerialPort(string portName = "COM1", int baudRate = 9600, Parity parity =  Parity.None, int dataBits = 8,
+            StopBits stopBits = StopBits.None, Handshake handshake = Handshake.None)
+            : this()
+        {
+            this.portName = portName;
+            this.baudRate = baudRate;
+            this.dataBits = dataBits;
+
+            this.parity = parity;
+            this.stopBits = stopBits;
+            this.handshake = handshake;
 
             this.Init();
         }
@@ -642,7 +810,7 @@ namespace GodSharp
                             str = serialPort.Encoding.GetString(bytes);
                             break;
                         case SerialPortDataFormat.Hex:
-                            str = ByteToHex(bytes);
+                            str = bytes.ToHexString();
                             break;
                     }
                 }
@@ -690,7 +858,7 @@ namespace GodSharp
 
             if (EndCharOfHex != null)
             {
-                ending = HexToByte(EndCharOfHex);
+                ending = EndCharOfHex.HexToByte();
                 endingLength = ending.Length;
             }
 
@@ -751,7 +919,7 @@ namespace GodSharp
                     serialPort.Open();
                 }
 
-                byte[] bytes = HexToByte(str);
+                byte[] bytes = str.HexToByte();
 
                 serialPort.Write(bytes, 0, bytes.Length);
             }
@@ -854,192 +1022,6 @@ namespace GodSharp
         /// </summary>
         /// <returns></returns>
         public static string[] GetPortNames() => SerialPort.GetPortNames();
-        #endregion
-
-        #region Gets the parity method
-        /// <summary>
-        /// Gets the parity by string.
-        /// </summary>
-        /// <param name="parityVal">The parity.
-        /// Parity.Space：0|s|space
-        /// Parity.Mark：1|m|mark
-        /// Parity.Even：2|e|even
-        /// Parity.Odd：3|o|odd
-        /// Parity.None：4|n|none
-        /// </param>
-        /// <returns>Parity.</returns>
-        private Parity GetParity(string parityVal)
-        {
-            Parity patityBit;
-            switch (parityVal.ToLower())
-            {
-                case "0":
-                case "s":
-                case "space":
-                    patityBit = Parity.Space;
-                    break;
-                case "1":
-                case "m":
-                case "mark":
-                    patityBit = Parity.Mark;
-                    break;
-                case "2":
-                case "e":
-                case "even":
-                    patityBit = Parity.Even;
-                    break;
-                case "3":
-                case "o":
-                case "odd":
-                    patityBit = Parity.Odd;
-                    break;
-                case "4":
-                case "n":
-                case "none":
-                    patityBit = Parity.None;
-                    break;
-                default:
-                    patityBit = Parity.None;
-                    break;
-            }
-            return patityBit;
-        }
-
-        #endregion
-
-        #region Gets the stopbits method
-        /// <summary>
-        /// Gets the stopbits by string.
-        /// </summary>
-        /// <param name="stopBitsVal">The stop bits.
-        /// StopBits.None：0|n|none
-        /// StopBits.One：1|o|one
-        /// StopBits.OnePointFive：3|opf|of|f
-        /// StopBits.Two：2|t|two
-        /// </param>
-        /// <returns>StopBits.</returns>
-        private StopBits GetStopBits(string stopBitsVal)
-        {
-            StopBits stopBit;
-            switch (stopBitsVal.ToLower())
-            {
-                case "0":
-                case "n":
-                case "none":
-                    stopBit = StopBits.None;
-                    break;
-                case "1":
-                case "o":
-                case "one":
-                    stopBit = StopBits.One;
-                    break;
-                case "1.5":
-                case "opf":
-                case "of":
-                case "f":
-                case "onepointfive":
-                    stopBit = StopBits.OnePointFive;
-                    break;
-                case "2":
-                case "t":
-                case "two":
-                    stopBit = StopBits.Two;
-                    break;
-                default:
-                    stopBit = StopBits.None;
-                    break;
-            }
-            return stopBit;
-        }
-
-        #endregion
-
-        #region Gets the handshake by string
-        /// <summary>
-        /// Gets the handshake by string.
-        /// </summary>
-        /// <param name="shake">The shake.
-        /// Handshake.None：0|n|none
-        /// Handshake.RequestToSend：1|r|rst
-        /// Handshake.RequestToSendXOnXOff：2|rtsxx|rsxx|rtsx|rsx|rx
-        /// Handshake.XOnXOff：3|x|xx
-        /// </param>
-        /// <returns>Handshake.</returns>
-        private Handshake GetHandshake(string shake)
-        {
-            Handshake handShake;
-            switch (shake.ToLower())
-            {
-                case "0":
-                case "n":
-                case "none":
-                    handShake = Handshake.None;
-                    break;
-                case "1":
-                case "r":
-                case "rs":
-                case "rts":
-                    handShake = Handshake.RequestToSend;
-                    break;
-                case "2":
-                case "rtsxx":
-                case "rsxx":
-                case "rtsx":
-                case "rsx":
-                case "rx":
-                    handShake = Handshake.RequestToSendXOnXOff;
-                    break;
-                case "3":
-                case "x":
-                case "xx":
-                    handShake = Handshake.XOnXOff;
-                    break;
-                default:
-                    handShake = Handshake.None;
-                    break;
-            }
-            return handShake;
-        }
-        #endregion
-
-        #region Convert method
-        /// <summary>
-        /// Hexadecimal string to an byte array.
-        /// </summary>
-        /// <param name="hex"></param>
-        /// <returns>An byte array.</returns>
-        public static byte[] HexToByte(string hex)
-        {
-            // remove space
-            hex = hex.Replace(" ", "");
-
-            byte[] bytes = new byte[hex.Length / 2];
-            for (int i = 0; i < hex.Length; i += 2)
-            {
-                bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
-            }
-            return bytes;
-        }
-
-        /// <summary>
-        /// Bytes to hexadecimal.
-        /// </summary>
-        /// <param name="bytes">The bytes.</param>
-        /// <returns>System.String.</returns>
-        public static string ByteToHex(byte[] bytes)
-        {
-            string[] array = { };
-
-            if (bytes != null)
-            {
-                for (int i = 0; i < bytes.Length; i++)
-                {
-                    array[i] = bytes[i].ToString("X2");
-                }
-            }
-
-            return string.Join(" ", array);
-        }
         #endregion
     }
 }

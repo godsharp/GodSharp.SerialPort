@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>GodSharp.SerialPort</id>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
     <title>GodSharp.SerialPort</title>
     <authors>seayxu</authors>
     <owners>seayxu</owners>
@@ -14,6 +14,10 @@
     <releaseNotes>
       An easy-to-use .NET SerialPort class.(.NET Framework >= 3.5)
 
+      1.1.1
+      - 1.Add constructor and change the constructor signature.
+      - 2.Add PortUtil class.
+      
       1.1.0
       - 1.Add UseDataReceived method use to trigger DataReceived event.
       - 2.The read metnod can be used to end character.

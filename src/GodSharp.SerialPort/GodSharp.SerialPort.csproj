@@ -44,14 +44,24 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\GodSharp.Shared\Extension\ByteExtension.cs">
+      <Link>Extension\ByteExtension.cs</Link>
+    </Compile>
+    <Compile Include="..\GodSharp.Shared\Extension\StringExtension.cs">
+      <Link>Extension\StringExtension.cs</Link>
+    </Compile>
     <Compile Include="..\GodSharp.Shared\SerialPort\DataFormat.cs">
       <Link>DataFormat.cs</Link>
     </Compile>
     <Compile Include="..\GodSharp.Shared\SerialPort\GodSerialPort.cs">
       <Link>GodSerialPort.cs</Link>
     </Compile>
+    <Compile Include="..\GodSharp.Shared\Util\PortUtil.cs">
+      <Link>Util\PortUtil.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

@@ -9,7 +9,10 @@
     <Import_RootNamespace>GodSharp</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Extension\ByteExtension.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extension\StringExtension.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SerialPort\DataFormat.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SerialPort\GodSerialPort.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\PortUtil.cs" />
   </ItemGroup>
 </Project>
