@@ -17,7 +17,7 @@ namespace GodSharp.SerialPort.ConsoleSample
             }
 
             GodSerialPort gsp = new GodSerialPort("COM"+num, 9600);
-            gsp.UseDataReceived((bytes) => {
+            gsp.UseDataReceived((sp,bytes) => {
                 if (bytes!=null&&bytes.Length>0)
                 {
                     string buffer = string.Join(" ", bytes);

@@ -18,7 +18,7 @@ namespace GodSharp
     /// </summary>
     /// <example>
     /// GodSerialPort serial= new GodSerialPort("COM1",9600);
-    /// serial.UseDataReceived((bytes)=>{});
+    /// serial.UseDataReceived((sp,bytes)=>{});
     /// serial.Open();
     /// </example>
     public class GodSerialPort
@@ -45,17 +45,17 @@ namespace GodSharp
         /// <summary>
         /// The method of execution that data has been received through a port represented by the SerialPort object.
         /// </summary>
-        private Action<byte[]> onData;
+        private Action<GodSerialPort,byte[]> onData;
 
         /// <summary>
         /// The method of execution that an error has occurred with a port represented by a SerialPort object.
         /// </summary>
-        private Action<SerialError> onError;
+        private Action<GodSerialPort,SerialError> onError;
 
         /// <summary>
         /// The method of execution that a non-data signal event has occurred on the port represented by the SerialPort object.
         /// </summary>
-        private Action<SerialPinChange> onPinChange;
+        private Action<GodSerialPort,SerialPinChange> onPinChange;
 
         /// <summary>
         /// Gets or sets the data format.
@@ -591,9 +591,7 @@ namespace GodSharp
                 if (serialPort.IsOpen)
                 {
                     byte[] bytes = this.TryRead();
-                    this.onData?.Invoke(bytes);
-                    this.DiscardOutBuffer();
-                    this.DiscardInBuffer();
+                    this.onData?.Invoke(this, bytes);
                 }
                 else
                 {
@@ -619,7 +617,7 @@ namespace GodSharp
         {
             try
             {
-                this.onError?.Invoke(e.EventType);
+                this.onError?.Invoke(this, e.EventType);
             }
             catch (Exception ex)
             {
@@ -639,7 +637,7 @@ namespace GodSharp
         {
             try
             {
-                this.onPinChange?.Invoke(e.EventType);
+                this.onPinChange?.Invoke(this, e.EventType);
             }
             catch (Exception ex)
             {
@@ -653,7 +651,7 @@ namespace GodSharp
         /// Use DataReceived event with data received action.
         /// </summary>
         /// <param name="action">The action which process data.</param>
-        public void UseDataReceived(Action<byte[]> action)
+        public void UseDataReceived(Action<GodSerialPort, byte[]> action)
         {
             onData = action;
             serialPort.DataReceived += SerialPort_DataReceived;
@@ -694,7 +692,9 @@ namespace GodSharp
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Init SerialPort Exception:" + PortName + "\r\nMessage:" + ex.Message);
+#if DEBUG
+                Console.WriteLine("Init SerialPort Exception:" + PortName + "\r\nMessage:" + ex.Message); 
+#endif
                 throw new Exception(ex.Message, ex);
             }
         }
@@ -718,18 +718,24 @@ namespace GodSharp
                 }
                 else
                 {
-                    Console.WriteLine("the port is opened!");
+#if DEBUG
+                    Console.WriteLine("the port is opened!"); 
+#endif
                     return true;
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Open SerialPort Exception:" + PortName + "\r\nMessage:" + ex.Message);
+#if DEBUG
+                Console.WriteLine("Open SerialPort Exception:" + PortName + "\r\nMessage:" + ex.Message); 
+#endif
             }
 
             if (serialPort.IsOpen)
             {
-                Console.WriteLine("successed to open the port!");
+#if DEBUG
+                Console.WriteLine("successed to open the port!"); 
+#endif
                 rst = true;
             }
             return rst;
@@ -742,7 +748,7 @@ namespace GodSharp
         /// Set the method when [error].
         /// </summary>
         /// <param name="action">The action.</param>
-        public void OnError(Action<SerialError> action)
+        public void OnError(Action<GodSerialPort, SerialError> action)
         {
             this.onError = action;
         }
@@ -753,7 +759,7 @@ namespace GodSharp
         /// Set the method when [pin changed].
         /// </summary>
         /// <param name="action">The action.</param>
-        public void OnPinChange(Action<SerialPinChange> action)
+        public void OnPinChange(Action<GodSerialPort, SerialPinChange> action)
         {
             this.onPinChange = action;
         }
@@ -770,7 +776,9 @@ namespace GodSharp
             {
                 if (!serialPort.IsOpen)
                 {
-                    Console.WriteLine("the port is already closed!");
+#if DEBUG
+                    Console.WriteLine("the port is already closed!"); 
+#endif
                     return true;
                 }
                 else
@@ -781,8 +789,9 @@ namespace GodSharp
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Close SerialPort Exception:" + PortName + "\r\nMessage:" + ex.Message +
-                                  "\r\nStackTrace:" + ex.StackTrace);
+#if DEBUG
+                Console.WriteLine("Close SerialPort Exception:" + PortName + "\r\nMessage:" + ex.Message + "\r\nStackTrace:" + ex.StackTrace); 
+#endif
                 throw new Exception(ex.Message, ex);
             }
         }

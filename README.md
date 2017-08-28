@@ -19,7 +19,7 @@ GodSerialPort serial = new GodSerialPort("COM1", 9600);
 
 **Notice**:*This is not need when you read data by read method.*
 ```
-serial.UseDataReceived((bytes)=>{});
+serial.UseDataReceived((sp,bytes)=>{});
 ```
 
 3. Open SerialPort object.
@@ -60,7 +60,7 @@ class Program
         }
 
         GodSerialPort gsp = new GodSerialPort("COM"+num, 9600);
-        gsp.UseDataReceived((bytes) => {
+        gsp.UseDataReceived((sp,bytes) => {
              string buffer = string.Join(" ", bytes);
              Console.WriteLine("receive data:" + buffer);
         });
@@ -97,6 +97,9 @@ class Program
 ```
 
 # Notes
+
+## 1.1.2
+- 1.Add GodSerialPort to event action as signature param for initial a list.
 
 ## 1.1.1
 - 1.Add constructor and change the constructor signature.

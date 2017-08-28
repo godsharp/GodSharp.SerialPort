@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>GodSharp.SerialPort</id>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
     <title>GodSharp.SerialPort</title>
     <authors>seayxu</authors>
     <owners>seayxu</owners>
@@ -13,6 +13,9 @@
     <description>An easy-to-use .NET SerialPort class.</description>
     <releaseNotes>
       An easy-to-use .NET SerialPort class.(.NET Framework >= 3.5)
+
+      1.1.2
+      - 1.Add GodSerialPort to event action as signature param.
 
       1.1.1
       - 1.Add constructor and change the constructor signature.
