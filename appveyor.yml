@@ -13,13 +13,15 @@ nuget:
   project_feed: true
 build:
   project: GodSharp.SerialPort.sln
-  publish_nuget: true
+  publish_nuget: false
   include_nuget_references: true
   verbosity: minimal
 test: off
 artifacts:
 - path: test\GodSharp.SerialPort.ConsoleSample\bin\$(configuration)\
   name: GodSharp.SerialPort.ConsoleSample-v$(appveyor_build_version)
+- path: '**\*.nupkg'
+  name: nuget
 deploy:
 - provider: NuGet
   server: https://www.nuget.org/api/v2/package
