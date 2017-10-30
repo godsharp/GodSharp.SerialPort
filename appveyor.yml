@@ -20,7 +20,7 @@ test: off
 artifacts:
 - path: test\GodSharp.SerialPort.ConsoleSample\bin\$(configuration)\
   name: GodSharp.SerialPort.ConsoleSample-v$(appveyor_build_version)
-- path: '**\*.nupkg'
+- path: 'output\**\*.nupkg'
   name: nuget
 deploy:
 - provider: NuGet
