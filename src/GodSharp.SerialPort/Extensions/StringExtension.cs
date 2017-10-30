@@ -1,11 +1,13 @@
 ﻿using System;
+// ReSharper disable SuggestVarOrType_Elsewhere
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 
-namespace GodSharp.Extension
+namespace GodSharp.SerialPort.Extensions
 {
 	/// <summary>
 	/// String extension methods class.
 	/// </summary>
-	public static class StringExtension
+	public partial class Extension
 	{
 		/// <summary>
 		/// Hexadecimal string to an byte array.

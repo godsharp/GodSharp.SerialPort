@@ -1,4 +1,4 @@
-﻿namespace GodSharp
+﻿namespace GodSharp.SerialPort.Enums
 {
     /// <summary>
     /// serialport data format

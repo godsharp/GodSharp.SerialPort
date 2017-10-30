@@ -1,11 +1,14 @@
 ﻿using System.Collections.Generic;
+// ReSharper disable SuggestVarOrType_Elsewhere
+// ReSharper disable LoopCanBeConvertedToQuery
+// ReSharper disable SuggestVarOrType_BuiltInTypes
 
-namespace GodSharp.Extension
+namespace GodSharp.SerialPort.Extensions
 {
     /// <summary>
     /// Byte extension methods class.
     /// </summary>
-    public static class ByteExtension
+    public static partial class Extension
     {
         /// <summary>
         /// Bytes to hexadecimal.

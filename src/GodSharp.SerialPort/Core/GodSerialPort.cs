@@ -5,13 +5,19 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using GodSharp.Extension;
-using GodSharp.Util;
-
+using GodSharp.SerialPort.Enums;
+using GodSharp.SerialPort.Extensions;
+// ReSharper disable FieldCanBeMadeReadOnly.Local
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable SuggestVarOrType_BuiltInTypes
+// ReSharper disable SuggestVarOrType_Elsewhere
+// ReSharper disable InvertIf
+// ReSharper disable SwitchStatementMissingSomeCases
 // ReSharper disable TooWideLocalVariableScope
 // ReSharper disable ArrangeThisQualifier
-
-namespace GodSharp
+// ReSharper disable once CheckNamespace
+// ReSharper disable SuggestVarOrType_SimpleTypes
+namespace GodSharp.SerialPort
 {
     /// <summary>
     /// GodSerialPort Util Class.
@@ -21,27 +27,18 @@ namespace GodSharp
     /// serial.UseDataReceived((sp,bytes)=>{});
     /// serial.Open();
     /// </example>
-    public class GodSerialPort
+    public partial class GodSerialPort
     {
         #region Propertys
-        /// <summary>
-        /// Gets the baudrate dictionary.
-        /// </summary>
-        /// <value>The baudrate dictionary.</value>
-        public static Dictionary<string, int> BaudRateDictionary { get; }
-
-        /// <summary>
-        /// Gets the parity dictionary.
-        /// </summary>
-        /// <value>The parity dictionary.</value>
-        public static Dictionary<string, string> ParityDictionary { get; }
-
-        /// <summary>
-        /// Gets the stop bit dictionary.
-        /// </summary>
-        /// <value>The stop bit dictionary.</value>
-        public static Dictionary<string, string> StopBitDictionary { get; }
-
+        
+        private int tryCountOfReceive;
+        private string portName;
+        private int baudRate;
+        private int dataBits;
+        private Handshake handshake;
+        private Parity parity;
+        private StopBits stopBits;
+        
         /// <summary>
         /// The method of execution that data has been received through a port represented by the SerialPort object.
         /// </summary>
@@ -61,9 +58,9 @@ namespace GodSharp
         /// Gets or sets the data format.
         /// </summary>
         /// <value>The data format.</value>
+        // ReSharper disable once MemberCanBePrivate.Global
         public SerialPortDataFormat DataFormat { get; set; } = SerialPortDataFormat.Hex;
-        
-        private int tryCountOfReceive;
+
         /// <summary>
         /// Gets or sets the try count of receive.
         /// </summary>
@@ -81,11 +78,11 @@ namespace GodSharp
             }
         }
 
-
         /// <summary>
         /// Gets or sets the try sleep time of receive,unit is ms.
         /// </summary>
         /// <value>The try sleep time of receive,default is 10.</value>
+        // ReSharper disable once MemberCanBePrivate.Global
         public int TrySleepTimeOfReceive { get; set; } = 10;
 
         /// <summary>
@@ -97,20 +94,18 @@ namespace GodSharp
         /// <summary>
         /// The serial port
         /// </summary>
-        private SerialPort serialPort;
+        private System.IO.Ports.SerialPort serialPort;
 
         /// <summary>
-        /// SerialPort对象
+        /// SerialPort object.
         /// </summary>
-        public SerialPort SerialPort => serialPort;
+        public System.IO.Ports.SerialPort SerialPort => serialPort;
 
         /// <summary>
         /// Determines whether this instance is open.
         /// </summary>
         /// <returns><c>true</c> if this serialport is open; otherwise, <c>false</c>.</returns>
         public bool IsOpen => serialPort != null && serialPort.IsOpen;
-
-        string portName;
 
         /// <summary>
         /// Gets or sets the name of the port.
@@ -121,8 +116,6 @@ namespace GodSharp
             get => serialPort.PortName;
             set => serialPort.PortName = value;
         }
-
-        int baudRate;
 
         /// <summary>
         /// Gets or sets the baudrate.
@@ -143,8 +136,6 @@ namespace GodSharp
             get => serialPort.BreakState;
             set => serialPort.BreakState = value;
         }
-
-        int dataBits;
         /// <summary>
         /// Gets or sets the databits.
         /// </summary>
@@ -164,9 +155,7 @@ namespace GodSharp
             get => serialPort.Encoding;
             set => serialPort.Encoding = value;
         }
-
-        Handshake handshake;
-
+        
         /// <summary>
         /// Gets or sets the handshake.
         /// </summary>
@@ -176,8 +165,6 @@ namespace GodSharp
             get => serialPort.Handshake;
             set => serialPort.Handshake = value;
         }
-
-        Parity parity;
 
         /// <summary>
         /// Gets or sets the parity.
@@ -189,7 +176,6 @@ namespace GodSharp
             set => serialPort.Parity = value;
         }
 
-        StopBits stopBits;
         /// <summary>
         /// Gets or sets the stopbits.
         /// </summary>
@@ -310,45 +296,6 @@ namespace GodSharp
         #endregion
 
         #region Constructor
-        /// <summary>
-        /// Initializes static members of the <see cref="GodSerialPort"/> class.
-        /// </summary>
-        static GodSerialPort()
-        {
-            BaudRateDictionary = new Dictionary<string, int>
-            {
-                {"110", 110},
-                {"300", 300},
-                {"600", 600},
-                {"1200", 1200},
-                {"2400", 2400},
-                {"4800", 4800},
-                {"9600", 9600},
-                {"14400", 14400},
-                {"19200", 19200},
-                {"38400", 38400},
-                {"56000", 56000},
-                {"57600", 57600},
-                {"115200", 115200}
-            };
-
-            ParityDictionary = new Dictionary<string, string>
-            {
-                {"None", "n"},
-                {"Odd", "o"},
-                {"Even", "e"},
-                {"Mark", "m"},
-                {"Space", "s"}
-            };
-
-            StopBitDictionary = new Dictionary<string, string>
-            {
-                {"None", "n"},
-                {"1", "o"},
-                {"1.5", "o"},
-                {"2", "f"}
-            };
-        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GodSerialPort"/> class.
@@ -359,7 +306,7 @@ namespace GodSharp
             this.parity = Parity.None;
             this.stopBits = StopBits.One;
             this.handshake = Handshake.None;
-            this.serialPort = new SerialPort();
+            this.serialPort = new System.IO.Ports.SerialPort();
         }
 
         /// <summary>
@@ -490,15 +437,15 @@ namespace GodSharp
 
             if (!string.IsNullOrEmpty(parity))
             {
-                this.parity = PortUtil.GetParity(parity); 
+                this.parity = GetParity(parity); 
             }
             if (!string.IsNullOrEmpty(stopBits))
             {
-                this.stopBits = PortUtil.GetStopBits(stopBits); 
+                this.stopBits = GetStopBits(stopBits); 
             }
             if (!string.IsNullOrEmpty(handshake))
             {
-                this.handshake = PortUtil.GetHandshake(handshake); 
+                this.handshake = GetHandshake(handshake); 
             }
 
             this.Init();
@@ -539,14 +486,14 @@ namespace GodSharp
 
             if (parity>0)
             {
-                this.parity = PortUtil.GetParity(parity);
+                this.parity = GetParity(parity);
             }
 
-            this.stopBits = PortUtil.GetStopBits(stopBits);
+            this.stopBits = GetStopBits(stopBits);
 
             if (handshake > 0)
             {
-                this.handshake = PortUtil.GetHandshake(handshake);
+                this.handshake = GetHandshake(handshake);
             }
 
             this.Init();
@@ -578,75 +525,6 @@ namespace GodSharp
 
         #endregion
 
-        #region DataReceived event
-        /// <summary>
-        /// Handles the DataReceived event of the SerialPort.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="SerialDataReceivedEventArgs"/> instance containing the event data.</param>
-        private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
-        {
-            try
-            {
-                if (serialPort.IsOpen)
-                {
-                    byte[] bytes = this.TryRead();
-                    this.onData?.Invoke(this, bytes);
-                }
-                else
-                {
-                    serialPort.Open();
-                    SerialPort_DataReceived(sender, e);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-        }
-
-        #endregion
-
-        #region ErrorReceived event
-        /// <summary>
-        /// Handles the ErrorReceived event of the SerialPort.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="SerialErrorReceivedEventArgs"/> instance containing the event data.</param>
-        private void SerialPort_ErrorReceived(object sender, SerialErrorReceivedEventArgs e)
-        {
-            try
-            {
-                this.onError?.Invoke(this, e.EventType);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-        }
-
-        #endregion
-
-        #region PinChanged event
-        /// <summary>
-        /// Handles the PinChanged event of the SerialPort.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="SerialPinChangedEventArgs"/> instance containing the event data.</param>
-        private void SerialPort_PinChanged(object sender, SerialPinChangedEventArgs e)
-        {
-            try
-            {
-                this.onPinChange?.Invoke(this, e.EventType);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-        }
-
-        #endregion
-
         /// <summary>
         /// Use DataReceived event with data received action.
         /// </summary>
@@ -661,7 +539,7 @@ namespace GodSharp
         /// <summary>
         /// Initializes the <see cref="SerialPort"/> with the action of data receive.
         /// </summary>
-        public void Init()
+        private void Init()
         {
             try
             {
@@ -781,11 +659,8 @@ namespace GodSharp
 #endif
                     return true;
                 }
-                else
-                {
-                    serialPort.Close();
-                    return true;
-                }
+                serialPort.Close();
+                return true;
             }
             catch (Exception ex)
             {
@@ -799,6 +674,38 @@ namespace GodSharp
         #endregion
 
         #region Reads method
+        
+        /// <summary>
+        /// Synchronously reads one byte from the SerialPort input buffer.
+        /// </summary>
+        /// <returns>The byte, cast to an Int32, or -1 if the end of the stream has been read.</returns>
+        public int ReadByte() => serialPort.ReadByte();
+        
+        /// <summary>
+        /// Synchronously reads one character from the SerialPort input buffer.
+        /// </summary>
+        /// <returns>The character that was read.</returns>
+        public int ReadChar() => serialPort.ReadChar();
+        
+        /// <summary>
+        /// Reads up to the NewLine value in the input buffer.
+        /// </summary>
+        /// <returns>The contents of the input buffer up to the first occurrence of a NewLine value.</returns>
+        public string ReadLine() => serialPort.ReadLine();
+
+        /// <summary>
+        /// Reads all immediately available bytes, based on the encoding, in both the stream and the input buffer of the SerialPort object.
+        /// </summary>
+        /// <returns>The contents of the stream and the input buffer of the SerialPort object.</returns>
+        public string ReadExisting() => serialPort.ReadExisting();
+
+        /// <summary>
+        /// Reads a string up to the specified value in the input buffer.
+        /// </summary>
+        /// <param name="value">A value that indicates where the read operation stops.</param>
+        /// <returns>The contents of the input buffer up to the specified value.</returns>
+        public string ReadTo(string value) => serialPort.ReadTo(value);
+        
         /// <summary>
         /// Reads data from the input buffer.
         /// </summary>
@@ -918,19 +825,16 @@ namespace GodSharp
         /// <summary>
         /// Writes the specified hex string.
         /// </summary>
-        /// <param name="str">The hex string.</param>
-        public void WriteHexString(string str)
+        /// <param name="str">The hex string with space.example:'30 31 32'.</param>
+        /// <example>sp.WriteHexString("30 31 32");</example>
+        /// <returns>The <see cref="Int32"/> byte number to be written.</returns>
+        public int WriteHexString(string str)
         {
             try
             {
-                if (!serialPort.IsOpen)
-                {
-                    serialPort.Open();
-                }
-
                 byte[] bytes = str.HexToByte();
 
-                serialPort.Write(bytes, 0, bytes.Length);
+                return Write(bytes, 0, bytes.Length);
             }
             catch (Exception ex)
             {
@@ -942,39 +846,15 @@ namespace GodSharp
         /// Writes the specified ascii string.
         /// </summary>
         /// <param name="str">The ascii string.</param>
-        public void WriteAsciiString(string str)
+        /// <example>sp.WriteHexString("123");</example>
+        /// <returns>The <see cref="Int32"/> byte number to be written.</returns>
+        public int WriteAsciiString(string str)
         {
             try
             {
-                if (!serialPort.IsOpen)
-                {
-                    serialPort.Open();
-                }
-
                 byte[] bytes = serialPort.Encoding.GetBytes(str);
 
-                serialPort.Write(bytes, 0, bytes.Length);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message, ex);
-            }
-        }
-
-        /// <summary>
-        /// Writes the specified string.
-        /// </summary>
-        /// <param name="str"></param>
-        // ReSharper disable once UnusedMember.Local
-        private void Write(string str)
-        {
-            try
-            {
-                if (!serialPort.IsOpen)
-                {
-                    serialPort.Open();
-                }
-                serialPort.Write(str);
+                return Write(bytes, 0, bytes.Length);
             }
             catch (Exception ex)
             {
@@ -986,9 +866,10 @@ namespace GodSharp
         /// Writes the byte array.
         /// </summary>
         /// <param name="bytes">The byte array.</param>
-        public void Write(byte[] bytes)
+        /// <returns>The <see cref="Int32"/> byte number to be written.</returns>
+        public int Write(byte[] bytes)
         {
-            Write(bytes, 0, bytes.Length);
+            return Write(bytes, 0, bytes.Length);
         }
 
         /// <summary>
@@ -997,21 +878,26 @@ namespace GodSharp
         /// <param name="bytes">The byte array.</param>
         /// <param name="offset">The number of offset.</param>
         /// <param name="count">The length of write.</param>
-        public void Write(byte[] bytes, int offset, int count)
+        /// <returns>The <see cref="Int32"/> byte number to be written.</returns>
+        public int Write(byte[] bytes, int offset, int count)
         {
             try
             {
-                if (!serialPort.IsOpen)
-                {
-                    serialPort.Open();
-                }
                 serialPort.Write(bytes, offset, count);
+
+                return count;
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message, ex);
             }
         }
+
+        /// <summary>
+        /// Writes the specified string and the NewLine value to the output buffer.
+        /// </summary>
+        /// <param name="str"></param>
+        public void WriteLine(string str) => serialPort.WriteLine(str);
 
         #endregion
 
@@ -1030,7 +916,7 @@ namespace GodSharp
         /// Get an array of serialport name for current computer.
         /// </summary>
         /// <returns></returns>
-        public static string[] GetPortNames() => SerialPort.GetPortNames();
+        public static string[] GetPortNames() => System.IO.Ports.SerialPort.GetPortNames();
         #endregion
     }
 }

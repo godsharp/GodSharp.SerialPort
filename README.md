@@ -98,6 +98,9 @@ class Program
 
 # Notes
 
+## 1.2.0
+- 1.support .NET Core 2.0.
+
 ## 1.1.2
 - 1.Add GodSerialPort to event action as signature param for initial a list.
 

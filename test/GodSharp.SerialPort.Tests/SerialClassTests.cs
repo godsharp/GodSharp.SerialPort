@@ -1,6 +1,5 @@
 ﻿using System;
-using System.IO.Ports;
-using GodSharp.Extension;
+using GodSharp.SerialPort.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GodSharp.Tests
@@ -28,7 +27,7 @@ namespace GodSharp.Tests
         [TestMethod()]
         public void SerialValueTest()
         {
-            SerialPort port = new SerialPort();
+            System.IO.Ports.SerialPort port = new System.IO.Ports.SerialPort();
             Console.WriteLine("PortName:" + port.PortName);
             Console.WriteLine("BaudRate:" + port.BaudRate);
             Console.WriteLine("Parity:" + port.Parity);

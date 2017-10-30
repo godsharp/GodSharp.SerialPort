@@ -1,70 +1,95 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{4006DD01-8B21-4246-A7CF-A15421738486}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GodSharp</RootNamespace>
-    <AssemblyName>GodSharp.SerialPort</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
+    <AssemblyVersion>1.2.0.1</AssemblyVersion>
+    <AssemblyFileVersion>1.2.0.1</AssemblyFileVersion>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <Title>GodSharp.SerialPort</Title>
+    <PackageId>GodSharp.SerialPort</PackageId>
+    <PackageTags>GodSharp,GodSharp.SerialPort,SerialPort</PackageTags>
+    <PackageReleaseNotes>support netstandard2.0.</PackageReleaseNotes>
+    <Company>GodSharp</Company>
+    <Authors>seayxu</Authors>
+    <Description>An easy-to-use .NET SerialPort Library.</Description>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/godsharp/GodSharp.SerialPort.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/godsharp/GodSharp.SerialPort</PackageProjectUrl>
+    <Copyright>Copyright © GodSharp 2017</Copyright>
+    <PackageIconUrl>https://avatars3.githubusercontent.com/u/26563296</PackageIconUrl>
+    <PackageLicenseUrl>https://github.com/godsharp/GodSharp.SerialPort/blob/master/LICENSE</PackageLicenseUrl>
+    <Version>1.2.0-preview1</Version>
+    <TargetFrameworks Condition="'$(LibraryFrameworks)'==''">netstandard2.0;net47;net46;net452;net451;net45;net40;net35;</TargetFrameworks>
+    <TargetFrameworks Condition="'$(LibraryFrameworks)'!=''">$(LibraryFrameworks)</TargetFrameworks>
+    <ApplicationIcon />
+    <StartupObject />
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net35'">
+    <DefineConstants>NFX;NET35;WF;$(AdditionalConstants)</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\GodSharp.SerialPort.xml</DocumentationFile>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net40'">
+    <DefineConstants>NFX;NET40;WF;$(AdditionalConstants)</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net45'">
+    <DefineConstants>NFX;NET45;WF;$(AdditionalConstants)</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net451'">
+    <DefineConstants>NFX;NET451;WF;$(AdditionalConstants)</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net452'">
+    <DefineConstants>NFX;NET452;WF;$(AdditionalConstants)</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net46'">
+    <DefineConstants>NFX;NET46;WF;$(AdditionalConstants)</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net47'">
+    <DefineConstants>NFX;NET47;WF;$(AdditionalConstants)</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
+    <DefineConstants>CFX;NETSTANDARD2_0;$(AdditionalConstants)</DefineConstants>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>false</SignAssembly>
+    <OutputPath>..\..\output\</OutputPath>
   </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>..\..\build\GodSharp.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
-  <PropertyGroup>
-    <DelaySign>true</DelaySign>
-  </PropertyGroup>
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net35'">
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net40'">
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net451'">
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net46'">
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net47'">
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.IO.Ports" Version="4.4.0" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\GodSharp.Shared\Extension\ByteExtension.cs">
-      <Link>Extension\ByteExtension.cs</Link>
-    </Compile>
-    <Compile Include="..\GodSharp.Shared\Extension\StringExtension.cs">
-      <Link>Extension\StringExtension.cs</Link>
-    </Compile>
-    <Compile Include="..\GodSharp.Shared\SerialPort\DataFormat.cs">
-      <Link>DataFormat.cs</Link>
-    </Compile>
-    <Compile Include="..\GodSharp.Shared\SerialPort\GodSerialPort.cs">
-      <Link>GodSerialPort.cs</Link>
-    </Compile>
-    <Compile Include="..\GodSharp.Shared\Util\PortUtil.cs">
-      <Link>Util\PortUtil.cs</Link>
-    </Compile>
-    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Reference Include="System" />
   </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
-  </PropertyGroup>
 </Project>
