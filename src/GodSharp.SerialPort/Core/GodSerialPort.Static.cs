@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO.Ports;
+using System.Text.RegularExpressions;
 
 // ReSharper disable All
 namespace GodSharp.SerialPort
@@ -9,6 +11,63 @@ namespace GodSharp.SerialPort
     /// </summary>
     public partial class GodSerialPort
     {
+
+        /// <summary>
+        /// Get an array of serialport name for current computer.
+        /// </summary>
+        /// <returns></returns>
+        public static string[] GetPortNames() => System.IO.Ports.SerialPort.GetPortNames();
+
+        /// <summary>
+        /// Validate prot name.
+        /// </summary>
+        /// <param name="name">The name of serial port.</param>
+        /// <param name="throwException">weather throw exception.default is false.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static bool ValidatePortName(string name,bool throwException=false)
+        {
+#if NET35
+            if (string.IsNullOrEmpty(name) || name?.Trim()=="")
+#else
+            if (string.IsNullOrWhiteSpace(name))
+#endif
+            {
+                if (throwException)
+                {
+                    return false;
+                }
+                
+                throw new ArgumentNullException(nameof(name));
+            }
+            
+            Regex regx = new Regex("^COM([0-9]{1,})$", RegexOptions.IgnoreCase);
+            if (!regx.IsMatch(name))
+            {
+                if (throwException)
+                {
+                    return false;
+                }
+                
+                throw new ArgumentException("port name must be COMxx.", nameof(name));
+            }
+
+            Match match = regx.Match(name);
+            bool b = int.TryParse(match.Groups[1].Value, out int v);
+
+            if (!b || v < 1)
+            {
+                if (throwException)
+                {
+                    return false;
+                }
+                
+                throw new ArgumentException("port name must be COMxx.", nameof(name));
+            }
+
+            return true;
+        }
+        
         /// <summary>
         /// Gets the baudrate dictionary.
         /// </summary>

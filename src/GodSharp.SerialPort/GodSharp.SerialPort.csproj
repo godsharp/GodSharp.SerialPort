@@ -1,14 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <AssemblyVersion>1.2.0.1</AssemblyVersion>
-    <AssemblyFileVersion>1.2.0.1</AssemblyFileVersion>
+    <AssemblyVersion>1.2.0.2</AssemblyVersion>
+    <AssemblyFileVersion>1.2.0.2</AssemblyFileVersion>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Title>GodSharp.SerialPort</Title>
     <PackageId>GodSharp.SerialPort</PackageId>
     <PackageTags>GodSharp,GodSharp.SerialPort,SerialPort</PackageTags>
-    <PackageReleaseNotes>support netstandard2.0.</PackageReleaseNotes>
     <Company>GodSharp</Company>
     <Authors>seayxu</Authors>
     <Description>An easy-to-use .NET SerialPort Library.</Description>
@@ -18,7 +17,7 @@
     <Copyright>Copyright © GodSharp 2017</Copyright>
     <PackageIconUrl>https://avatars3.githubusercontent.com/u/26563296</PackageIconUrl>
     <PackageLicenseUrl>https://github.com/godsharp/GodSharp.SerialPort/blob/master/LICENSE</PackageLicenseUrl>
-    <Version>1.2.0-preview1</Version>
+    <Version>1.2.0-preview2</Version>
     <TargetFrameworks Condition="'$(LibraryFrameworks)'==''">netstandard2.0;net47;net46;net452;net451;net45;net40;net35;</TargetFrameworks>
     <TargetFrameworks Condition="'$(LibraryFrameworks)'!=''">$(LibraryFrameworks)</TargetFrameworks>
     <ApplicationIcon />

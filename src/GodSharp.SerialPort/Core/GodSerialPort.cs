@@ -543,21 +543,9 @@ namespace GodSharp.SerialPort
         {
             try
             {
-                portName = portName?.Trim() ?? throw new ArgumentNullException(nameof(portName));
+                portName = portName?.Trim();
 
-                Regex regx = new Regex("^COM([0-9]{1,})$", RegexOptions.IgnoreCase);
-                if (!regx.IsMatch(portName))
-                {
-                    throw new ArgumentException("port name must be COMxx.", nameof(portName));
-                }
-
-                Match match = regx.Match(portName);
-                bool b = int.TryParse(match.Groups[1].Value, out int v);
-
-                if (!b || v < 1)
-                {
-                    throw new ArgumentException("port name must be COMxx.", nameof(portName));
-                }
+                ValidatePortName(portName);
 
                 serialPort.PortName = portName;
                 serialPort.BaudRate = baudRate;
@@ -911,12 +899,6 @@ namespace GodSharp.SerialPort
         /// Discards the output buffer.
         /// </summary>
         public void DiscardOutBuffer() => serialPort.DiscardOutBuffer();
-
-        /// <summary>
-        /// Get an array of serialport name for current computer.
-        /// </summary>
-        /// <returns></returns>
-        public static string[] GetPortNames() => System.IO.Ports.SerialPort.GetPortNames();
         #endregion
     }
 }
