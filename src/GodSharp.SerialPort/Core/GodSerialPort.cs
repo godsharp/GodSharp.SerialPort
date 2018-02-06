@@ -38,11 +38,11 @@ namespace GodSharp.SerialPort
         private Handshake handshake;
         private Parity parity;
         private StopBits stopBits;
-        
+
         /// <summary>
         /// The method of execution that data has been received through a port represented by the SerialPort object.
         /// </summary>
-        private Action<GodSerialPort,byte[]> onData;
+        public Action<GodSerialPort, byte[]> OnData { get; set; }
 
         /// <summary>
         /// The method of execution that an error has occurred with a port represented by a SerialPort object.
@@ -360,9 +360,7 @@ namespace GodSharp.SerialPort
         {
             
         }
-
-
-
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="GodSerialPort"/> class.
         /// </summary>
@@ -526,13 +524,40 @@ namespace GodSharp.SerialPort
         #endregion
 
         /// <summary>
+        /// Use DataReceived event with data received action or not.
+        /// </summary>
+        /// <param name="flag">The action which process data.</param>
+        public void UseDataReceived(bool flag)
+        {
+            if (flag)
+            {
+                serialPort.DataReceived += SerialPort_DataReceived;
+            }
+            else
+            {
+                serialPort.DataReceived -= SerialPort_DataReceived;
+            }
+        }
+
+        /// <summary>
+        /// Use DataReceived event with data received action or not.
+        /// </summary>
+        /// <param name="flag"></param>
+        /// <param name="action"></param>
+        public void UseDataReceived(bool flag, Action<GodSerialPort, byte[]> action = null)
+        {
+            UseDataReceived(flag);
+            OnData = action;
+        }
+
+        /// <summary>
         /// Use DataReceived event with data received action.
         /// </summary>
-        /// <param name="action">The action which process data.</param>
+        /// <param name="action"></param>
+        [Obsolete("This method is obsolete,will be removed next release version.")]
         public void UseDataReceived(Action<GodSerialPort, byte[]> action)
         {
-            onData = action;
-            serialPort.DataReceived += SerialPort_DataReceived;
+            UseDataReceived(true, action);
         }
 
         #region Initializes the SerialPort method
@@ -545,7 +570,7 @@ namespace GodSharp.SerialPort
             {
                 portName = portName?.Trim();
 
-                ValidatePortName(portName);
+                ValidatePortName(portName, true);
 
                 serialPort.PortName = portName;
                 serialPort.BaudRate = baudRate;

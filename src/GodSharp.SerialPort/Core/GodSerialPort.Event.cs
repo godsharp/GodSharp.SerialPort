@@ -20,7 +20,7 @@ namespace GodSharp.SerialPort
                 if (serialPort.IsOpen)
                 {
                     byte[] bytes = TryRead();
-                    onData?.Invoke(this, bytes);
+                    OnData?.Invoke(this, bytes);
                 }
                 else
                 {
