@@ -8,23 +8,27 @@ namespace GodSharp.SerialPort.ConsoleSample
         // ReSharper disable once UnusedParameter.Local
         static void Main(string[] args)
         {
-            Console.Write("input serialport number(only 0-9):");
+            Console.Write("input serialport name:");
             string read = Console.ReadLine();
-            bool flag = uint.TryParse(read, out uint num);
-            if (!flag)
+
+            if (string.IsNullOrWhiteSpace(read))
             {
                 Exit();
             }
 
-            GodSerialPort gsp = new GodSerialPort("COM"+num, 9600);
-            gsp.UseDataReceived((sp,bytes) => {
+            GodSerialPort gsp = new GodSerialPort(x=> {
+                x.PortName = read;
+            });
+
+            gsp.UseDataReceived(true,(sp,bytes) => {
                 if (bytes!=null&&bytes.Length>0)
                 {
                     string buffer = string.Join(" ", bytes);
                     Console.WriteLine("receive data:" + buffer);
                 }
             });
-            flag = gsp.Open();
+
+            bool flag = gsp.Open();
 
             if (!flag)
             {

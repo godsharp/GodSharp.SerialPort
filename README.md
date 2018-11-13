@@ -12,14 +12,14 @@ An easy-to-use .NET SerialPort class.
 1. New instance GodSerialPort.
 
 ```
-GodSerialPort serial = new GodSerialPort("COM1", 9600);
+GodSerialPort serial = new GodSerialPort("COM1", 9600,0);
 ```
 
 2. Use `DataReceived` event with received data action: `Action<byte[]>`.
 
 **Notice**:*This is not need when you read data by read method.*
 ```
-serial.UseDataReceived((sp,bytes)=>{});
+serial.UseDataReceived(true,(sp,bytes)=>{});
 ```
 
 3. Open SerialPort object.
@@ -59,8 +59,8 @@ class Program
             Exit();
         }
 
-        GodSerialPort gsp = new GodSerialPort("COM"+num, 9600);
-        gsp.UseDataReceived((sp,bytes) => {
+        GodSerialPort gsp = new GodSerialPort("COM"+num, 9600,0);
+        gsp.UseDataReceived(true,(sp,bytes) => {
              string buffer = string.Join(" ", bytes);
              Console.WriteLine("receive data:" + buffer);
         });

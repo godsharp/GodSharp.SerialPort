@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using GodSharp.SerialPort.Enums;
 using GodSharp.SerialPort.Extensions;
@@ -31,13 +30,21 @@ namespace GodSharp.SerialPort
     {
         #region Propertys
         
-        private int tryCountOfReceive;
-        private string portName;
-        private int baudRate;
-        private int dataBits;
-        private Handshake handshake;
-        private Parity parity;
-        private StopBits stopBits;
+        private int tryReadNumber;
+
+        private bool initialized = false;
+
+        private bool onDataBind = false;
+
+        /// <summary>
+        /// Gets or sets the name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
+        public string Name { get; set; }
+
+        public SerialConfigOptions Options { get; private set; }
 
         /// <summary>
         /// The method of execution that data has been received through a port represented by the SerialPort object.
@@ -64,17 +71,14 @@ namespace GodSharp.SerialPort
         /// <summary>
         /// Gets or sets the try count of receive.
         /// </summary>
-        /// <value>The try count of receive,default is 10.</value>
-        public int TryCountOfReceive
+        /// <value>The try count of receive,default is 3.</value>
+        public int TryReadNumber
         {
-            get => this.tryCountOfReceive;
+            get => this.tryReadNumber;
             set
             {
-                if (value < 1)
-                {
-                    throw new ArgumentOutOfRangeException(nameof(TryCountOfReceive), "TryCountOfReceive must be equal or greater than 1.");
-                }
-                tryCountOfReceive = value;
+                if (value < 1) throw new ArgumentOutOfRangeException(nameof(TryReadNumber), nameof(TryReadNumber) + " must be equal or greater than 1.");
+                tryReadNumber = value;
             }
         }
 
@@ -83,13 +87,18 @@ namespace GodSharp.SerialPort
         /// </summary>
         /// <value>The try sleep time of receive,default is 10.</value>
         // ReSharper disable once MemberCanBePrivate.Global
-        public int TrySleepTimeOfReceive { get; set; } = 10;
+        public int TryReadSpanTime { get; set; } = 10;
 
         /// <summary>
-        /// Gets or sets the end character.
+        /// Gets or sets the terminator,hex value.
         /// </summary>
-        /// <value>The end character.</value>
-        public string EndCharOfHex { get; set; } = null;
+        /// <value>
+        /// The terminator.
+        /// </value>
+        /// <example>
+        /// Terminator = "0D 0A"
+        /// </example>
+        public string Terminator { get; set; } = null;
 
         /// <summary>
         /// The serial port
@@ -302,11 +311,15 @@ namespace GodSharp.SerialPort
         /// </summary>
         private GodSerialPort()
         {
-            this.tryCountOfReceive = 10;
-            this.parity = Parity.None;
-            this.stopBits = StopBits.One;
-            this.handshake = Handshake.None;
+            this.tryReadNumber = 3;
             this.serialPort = new System.IO.Ports.SerialPort();
+
+            Options = new SerialConfigOptions()
+            {
+                Handshake = serialPort.Handshake,
+                Parity = serialPort.Parity,
+                StopBits = serialPort.StopBits
+            };
         }
 
         /// <summary>
@@ -314,33 +327,6 @@ namespace GodSharp.SerialPort
         /// </summary>
         /// <param name="portName">The name of the port.</param>
         /// <param name="baudRate">The baudrate,default is 9600.</param>
-        public GodSerialPort(string portName = "COM1", int baudRate = 9600)
-            : this(portName,baudRate,8)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="GodSerialPort"/> class.
-        /// </summary>
-        /// <param name="portName">The name of the port.</param>
-        /// <param name="baudRate">The baudrate,default is 9600.</param>
-        /// <param name="dataBits">The databits,default is 8.</param>
-        public GodSerialPort(string portName = "COM1", int baudRate = 9600, int dataBits = 8)
-            : this()
-        {
-            this.portName = portName;
-            this.baudRate = baudRate;
-            this.dataBits = dataBits;
-
-            this.Init();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="GodSerialPort"/> class.
-        /// </summary>
-        /// <param name="portName">The name of the port.</param>
-        /// <param name="baudRate">The baudrate,default is 9600.</param>
-        /// <param name="dataBits">The databits,default is 8.</param>
         /// <param name="parity">The string parity,default is none,Parity.None.
         /// <para>Parity.None：0|n|none</para>
         /// <para>Parity.Odd：1|o|odd</para>
@@ -348,71 +334,7 @@ namespace GodSharp.SerialPort
         /// <para>Parity.Mark：3|m|mark</para>
         /// <para>Parity.Space：4|s|space</para>
         /// </param>
-        /// <param name="stopBits">The string stopbits,default is one,StopBits.One.
-        /// <para>StopBits.None：0|n|none</para>
-        /// <para>StopBits.One：1|o|one</para>
-        /// <para>StopBits.Two：2|t|two</para>
-        /// <para>StopBits.OnePointFive：3|1.5|f|of|opf</para>
-        /// </param>
-        public GodSerialPort(string portName = "COM1", int baudRate = 9600, string parity = null, int dataBits = 8,
-            string stopBits = null)
-            : this(portName,baudRate,parity,dataBits,stopBits,null)
-        {
-            
-        }
-        
-        /// <summary>
-        /// Initializes a new instance of the <see cref="GodSerialPort"/> class.
-        /// </summary>
-        /// <param name="portName">The name of the port.</param>
-        /// <param name="baudRate">The baudrate,default is 9600.</param>
         /// <param name="dataBits">The databits,default is 8.</param>
-        /// <param name="parity">The int parity,default is 0,Parity.None.
-        /// <para>Parity.None：0</para>
-        /// <para>Parity.Odd：1</para>
-        /// <para>Parity.Even：2</para>
-        /// <para>Parity.Mark：3</para>
-        /// <para>Parity.Space：4</para>
-        /// </param>
-        /// <param name="stopBits">The int stopbits,default is 1,StopBits.One.
-        /// <para>StopBits.None：0</para>
-        /// <para>StopBits.One：1</para>
-        /// <para>StopBits.Two：2</para>
-        /// <para>StopBits.OnePointFive：3</para>
-        /// </param>
-        public GodSerialPort(string portName = "COM1", int baudRate = 9600, int parity = 0, int dataBits = 8,
-            int stopBits = 0)
-            : this(portName, baudRate, parity, dataBits, stopBits, 0)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="GodSerialPort"/> class.
-        /// </summary>
-        /// <param name="portName">The name of the port.</param>
-        /// <param name="baudRate">The baudrate,default is 9600.</param>
-        /// <param name="parity">The int parity,default is Parity.None.</param>
-        /// <param name="dataBits">The databits,default is 8.</param>
-        /// <param name="stopBits">The int stopbits,default is StopBits.One.</param>
-        public GodSerialPort(string portName = "COM1", int baudRate = 9600, Parity parity = Parity.None, int dataBits = 8,StopBits stopBits = StopBits.None)
-            : this(portName, baudRate, parity, dataBits, stopBits, Handshake.None)
-        {
-            
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="GodSerialPort"/> class.
-        /// </summary>
-        /// <param name="portName">The name of the port.</param>
-        /// <param name="baudRate">The baudrate,default is 9600.</param>
-        /// <param name="dataBits">The databits,default is 8.</param>
-        /// <param name="parity">The string parity,default is none,Parity.None.
-        /// <para>Parity.None：0|n|none</para>
-        /// <para>Parity.Odd：1|o|odd</para>
-        /// <para>Parity.Even：2|e|even</para>
-        /// <para>Parity.Mark：3|m|mark</para>
-        /// <para>Parity.Space：4|s|space</para>
-        /// </param>
         /// <param name="stopBits">The string stopbits,default is one,StopBits.One.
         /// <para>StopBits.None：0|n|none</para>
         /// <para>StopBits.One：1|o|one</para>
@@ -425,28 +347,8 @@ namespace GodSharp.SerialPort
         /// <para>Handshake.RequestToSend：2|r|rst</para>
         /// <para>Handshake.RequestToSendXOnXOff：3|rx|rtsxx</para>
         /// </param>
-        public GodSerialPort(string portName="COM1", int baudRate=9600, string parity = null, int dataBits=8,
-            string stopBits=null, string handshake=null)
-        : this()
+        public GodSerialPort(string portName, int baudRate = 9600, string parity = "none", int dataBits = 8, string stopBits = null, string handshake = null) : this(new SerialConfigOptions(portName, baudRate, dataBits, stopBits, parity, handshake))
         {
-            this.portName = portName;
-            this.baudRate = baudRate;
-            this.dataBits = dataBits;
-
-            if (!string.IsNullOrEmpty(parity))
-            {
-                this.parity = GetParity(parity); 
-            }
-            if (!string.IsNullOrEmpty(stopBits))
-            {
-                this.stopBits = GetStopBits(stopBits); 
-            }
-            if (!string.IsNullOrEmpty(handshake))
-            {
-                this.handshake = GetHandshake(handshake); 
-            }
-
-            this.Init();
         }
 
         /// <summary>
@@ -454,7 +356,6 @@ namespace GodSharp.SerialPort
         /// </summary>
         /// <param name="portName">The name of the port.</param>
         /// <param name="baudRate">The baudrate,default is 9600.</param>
-        /// <param name="dataBits">The databits,default is 8.</param>
         /// <param name="parity">The int parity,default is 0,Parity.None.
         /// <para>Parity.None：0</para>
         /// <para>Parity.Odd：1</para>
@@ -462,6 +363,7 @@ namespace GodSharp.SerialPort
         /// <para>Parity.Mark：3</para>
         /// <para>Parity.Space：4</para>
         /// </param>
+        /// <param name="dataBits">The databits,default is 8.</param>
         /// <param name="stopBits">The int stopbits,default is 1,StopBits.One.
         /// <para>StopBits.None：0</para>
         /// <para>StopBits.One：1</para>
@@ -474,27 +376,8 @@ namespace GodSharp.SerialPort
         /// <para>Handshake.RequestToSend：2</para>
         /// <para>Handshake.RequestToSendXOnXOff：3</para>
         /// </param>
-        public GodSerialPort(string portName = "COM1", int baudRate = 9600, int parity = 0, int dataBits = 8,
-             int stopBits = 1, int handshake = 0)
-            : this()
+        public GodSerialPort(string portName, int baudRate = 9600, int parity = 0, int dataBits = 8, int stopBits = 1, int handshake = 0) : this(new SerialConfigOptions(portName, baudRate, dataBits, stopBits, parity, handshake))
         {
-            this.portName = portName;
-            this.baudRate = baudRate;
-            this.dataBits = dataBits;
-
-            if (parity>0)
-            {
-                this.parity = GetParity(parity);
-            }
-
-            this.stopBits = GetStopBits(stopBits);
-
-            if (handshake > 0)
-            {
-                this.handshake = GetHandshake(handshake);
-            }
-
-            this.Init();
         }
 
         /// <summary>
@@ -506,19 +389,60 @@ namespace GodSharp.SerialPort
         /// <param name="dataBits">The databits,default is 8.</param>
         /// <param name="stopBits">The int stopbits,default is StopBits.One.</param>
         /// <param name="handshake">The int handshake,default is Handshake.None.</param>
-        public GodSerialPort(string portName = "COM1", int baudRate = 9600, Parity parity =  Parity.None, int dataBits = 8,
-            StopBits stopBits = StopBits.None, Handshake handshake = Handshake.None)
-            : this()
+        public GodSerialPort(string portName, int baudRate = 9600, Parity parity =  Parity.None, int dataBits = 8, StopBits stopBits = StopBits.None, Handshake handshake = Handshake.None) : this(new SerialConfigOptions(portName,baudRate,dataBits,stopBits,parity,handshake))
         {
-            this.portName = portName;
-            this.baudRate = baudRate;
-            this.dataBits = dataBits;
+        }
 
-            this.parity = parity;
-            this.stopBits = stopBits;
-            this.handshake = handshake;
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GodSerialPort"/> class.
+        /// </summary>
+        /// <param name="options">The options.</param>
+        public GodSerialPort(SerialConfigOptions options) : this()
+        {
+            this.Initialize(options);
+        }
 
-            this.Init();
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GodSerialPort"/> class.
+        /// </summary>
+        /// <param name="action">The action.</param>
+        public GodSerialPort(Action<SerialConfigOptions> action) : this()
+        {
+            action?.Invoke(Options);
+            this.Initialize(Options);
+        }
+        #endregion
+
+        #region Initializes the SerialPort method
+        /// <summary>
+        /// Initializes the <see cref="SerialPort"/> with the action of data receive.
+        /// </summary>
+        private void Initialize(SerialConfigOptions options)
+        {
+            try
+            {
+                if (initialized) throw new InvalidOperationException("Already initialized");
+
+                Options = options ?? throw new ArgumentNullException(nameof(options));
+
+                serialPort.PortName = Options.PortName;
+                serialPort.BaudRate = Options.BaudRate;
+                serialPort.DataBits = Options.DataBits;
+                serialPort.Handshake = Options.Handshake;
+                serialPort.Parity = Options.Parity;
+                serialPort.StopBits = Options.StopBits;
+                serialPort.PinChanged += SerialPort_PinChanged;
+                serialPort.ErrorReceived += SerialPort_ErrorReceived;
+
+                initialized = true;
+            }
+            catch (Exception ex)
+            {
+#if DEBUG
+                Console.WriteLine("Init SerialPort Exception:" + PortName + "\r\nMessage:" + ex.Message); 
+#endif
+                throw new Exception(ex.Message, ex);
+            }
         }
 
         #endregion
@@ -529,12 +453,17 @@ namespace GodSharp.SerialPort
         /// <param name="flag">The action which process data.</param>
         public void UseDataReceived(bool flag)
         {
-            if (flag)
+            if (flag && !onDataBind)
             {
+                onDataBind = true;
                 serialPort.DataReceived += SerialPort_DataReceived;
+
+                return;
             }
-            else
+
+            if (!flag && onDataBind)
             {
+                onDataBind = false;
                 serialPort.DataReceived -= SerialPort_DataReceived;
             }
         }
@@ -555,50 +484,17 @@ namespace GodSharp.SerialPort
         /// </summary>
         /// <param name="action"></param>
         [Obsolete("This method is obsolete,will be removed next release version.")]
-        public void UseDataReceived(Action<GodSerialPort, byte[]> action)
-        {
-            UseDataReceived(true, action);
-        }
+        public void UseDataReceived(Action<GodSerialPort, byte[]> action)=> UseDataReceived(true, action);
 
-        #region Initializes the SerialPort method
+        #region Open SerialPort method        
         /// <summary>
-        /// Initializes the <see cref="SerialPort"/> with the action of data receive.
+        /// Opens this instance.
         /// </summary>
-        private void Init()
-        {
-            try
-            {
-                portName = portName?.Trim();
-
-                ValidatePortName(portName, true);
-
-                serialPort.PortName = portName;
-                serialPort.BaudRate = baudRate;
-                serialPort.DataBits = dataBits;
-                serialPort.Handshake = handshake;
-                serialPort.Parity = parity;
-                serialPort.StopBits = stopBits;
-                serialPort.PinChanged += SerialPort_PinChanged;
-                serialPort.ErrorReceived += SerialPort_ErrorReceived;
-            }
-            catch (Exception ex)
-            {
-#if DEBUG
-                Console.WriteLine("Init SerialPort Exception:" + PortName + "\r\nMessage:" + ex.Message); 
-#endif
-                throw new Exception(ex.Message, ex);
-            }
-        }
-
-        #endregion
-
-        #region Open SerialPort method
-        /// <summary>
-        /// Open the <see cref="SerialPort"/>.
-        /// </summary>
-        /// <returns><c>true</c> if opend, <c>false</c> otherwise.</returns>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">Not initialized</exception>
         public bool Open()
         {
+            if (!initialized) throw new InvalidOperationException("Not initialized");
 
             bool rst = false;
             try
@@ -615,9 +511,12 @@ namespace GodSharp.SerialPort
                     return true;
                 }
             }
+#if !DEBUG
+            catch (Exception)
+            {
+#elif DEBUG
             catch (Exception ex)
             {
-#if DEBUG
                 Console.WriteLine("Open SerialPort Exception:" + PortName + "\r\nMessage:" + ex.Message); 
 #endif
             }
@@ -632,7 +531,7 @@ namespace GodSharp.SerialPort
             return rst;
         }
 
-        #endregion
+#endregion
 
         #region Set the method when error
         /// <summary>
@@ -658,21 +557,15 @@ namespace GodSharp.SerialPort
 
         #region Close SerialPort method
         /// <summary>
-        /// Close the <see cref="SerialPort"/>.
+        /// Close the <see cref="System.IO.Ports.SerialPort"/>.
         /// </summary>
         /// <returns><c>true</c> if closed, <c>false</c> otherwise.</returns>
         public bool Close()
         {
             try
             {
-                if (!serialPort.IsOpen)
-                {
-#if DEBUG
-                    Console.WriteLine("the port is already closed!"); 
-#endif
-                    return true;
-                }
-                serialPort.Close();
+                if (!serialPort.IsOpen) serialPort.Close();
+
                 return true;
             }
             catch (Exception ex)
@@ -684,7 +577,7 @@ namespace GodSharp.SerialPort
             }
         }
 
-        #endregion
+#endregion
 
         #region Reads method
         
@@ -785,14 +678,15 @@ namespace GodSharp.SerialPort
             byte[] ending = null;
             byte[] currentEnding;
 
-            if (EndCharOfHex != null)
+            if (Terminator != null)
             {
-                ending = EndCharOfHex.HexToByte();
+                ending = Terminator.HexToByte();
                 endingLength = ending.Length;
             }
 
             int dataLength;
-            while ((serialPort.BytesToRead > 0 || !found) && tryCount < tryCountOfReceive)
+
+            while ((serialPort.BytesToRead > 0 || !found) && tryCount < tryReadNumber)
             {
                 dataLength = serialPort.BytesToRead < serialPort.ReadBufferSize
                     ? serialPort.BytesToRead
@@ -822,10 +716,7 @@ namespace GodSharp.SerialPort
                     found = ending.Length > 0 && currentEnding.SequenceEqual(ending);
                 }
 
-                if (TrySleepTimeOfReceive>0)
-                {
-                    Thread.Sleep(TrySleepTimeOfReceive); 
-                }
+                if (TryReadSpanTime > 0) Thread.Sleep(TryReadSpanTime);
 
                 tryCount++;
             }

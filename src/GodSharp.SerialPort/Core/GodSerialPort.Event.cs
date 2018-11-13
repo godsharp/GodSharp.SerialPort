@@ -17,16 +17,8 @@ namespace GodSharp.SerialPort
         {
             try
             {
-                if (serialPort.IsOpen)
-                {
-                    byte[] bytes = TryRead();
-                    OnData?.Invoke(this, bytes);
-                }
-                else
-                {
-                    serialPort.Open();
-                    SerialPort_DataReceived(sender, e);
-                }
+                byte[] bytes = TryRead();
+                OnData?.Invoke(this, bytes);
             }
             catch (Exception ex)
             {
