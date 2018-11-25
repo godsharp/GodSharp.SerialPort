@@ -153,7 +153,7 @@ namespace GodSharp.SerialPort
         public static Parity GetParity(string parityVal)
         {
             Parity patityBit;
-            switch (parityVal.ToLower())
+            switch (parityVal?.ToLower())
             {
                 case "0":
                 case "n":
@@ -215,7 +215,7 @@ namespace GodSharp.SerialPort
         public static StopBits GetStopBits(string stopBitsVal)
         {
             StopBits stopBit;
-            switch (stopBitsVal.ToLower())
+            switch (stopBitsVal?.ToLower())
             {
                 case "0":
                 case "n":
@@ -275,7 +275,7 @@ namespace GodSharp.SerialPort
         public static Handshake GetHandshake(string shake)
         {
             Handshake handShake;
-            switch (shake.ToLower())
+            switch (shake?.ToLower())
             {
                 case "0":
                 case "n":

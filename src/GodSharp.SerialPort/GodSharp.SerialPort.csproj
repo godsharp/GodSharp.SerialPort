@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <AssemblyVersion>1.2.0.4</AssemblyVersion>
-    <AssemblyFileVersion>1.2.0.4</AssemblyFileVersion>
+    <AssemblyVersion>1.2.0.5-preview1</AssemblyVersion>
+    <AssemblyFileVersion>1.2.0.5</AssemblyFileVersion>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <NeutralLanguage>en-US</NeutralLanguage>
