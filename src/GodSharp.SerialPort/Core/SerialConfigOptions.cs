@@ -241,7 +241,7 @@ namespace GodSharp.SerialPort
                     stopBit = StopBits.OnePointFive;
                     break;
                 default:
-                    stopBit = StopBits.None;
+                    stopBit = StopBits.One;
                     break;
             }
 
