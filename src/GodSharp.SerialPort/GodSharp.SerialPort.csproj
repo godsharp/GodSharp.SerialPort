@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Version>1.2.0.5</Version>
-    <FileVersion>1.2.0.5</FileVersion>
+    <Version>1.2.0.6</Version>
+    <FileVersion>1.2.0.6</FileVersion>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <NeutralLanguage>en-US</NeutralLanguage>
@@ -42,6 +42,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <OutputPath>..\..\output\</OutputPath>
+    <AssemblyVersion>1.2.0.6</AssemblyVersion>
   </PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net35'">
     <Reference Include="System" />

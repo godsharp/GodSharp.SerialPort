@@ -564,7 +564,7 @@ namespace GodSharp.SerialPort
         {
             try
             {
-                if (!serialPort.IsOpen) serialPort.Close();
+                if (serialPort.IsOpen) serialPort.Close();
 
                 return true;
             }
